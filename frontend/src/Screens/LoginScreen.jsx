@@ -20,8 +20,14 @@ const LoginScreen = () => {
   const redirect = sp.get("redirect") || "/";
 
   useEffect(() => {
-    if (userInfo) {
+    if (userInfo && userInfo.role === "client") {
       navigate(redirect);
+    }
+    else if(userInfo && userInfo.is_staff){
+      navigate("/admin");
+    }
+    else if (userInfo && (userInfo.role === "project_manager" || userInfo.role === "key_account_holder") ){
+      navigate("/employee");
     }
   }, [navigate, redirect, userInfo]);
 
@@ -32,7 +38,10 @@ const LoginScreen = () => {
       console.log(res);
       if (res.user) {
         dispatch(setCredentials({ ...res }));
-        navigate(redirect);
+        if(res.user.role === 'client') navigate(redirect);
+        else if(res.user.is_staff){
+          navigate("/admin");
+        }
       }
     } catch (err) {
       toast.error(err.data.errors.non_field_errors);

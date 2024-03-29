@@ -42,7 +42,7 @@ export const usersApiSlice = apiSlice.injectEndpoints({
       }),
     }),
     changePassword: builder.mutation({
-      query: ({password, confirm_password , access_token}) => ({
+      query: ({password, confirm_password}) => ({
         url: USERS_AUTH_URL + "changepassword/",
         method: "POST",
         body: {password, confirm_password},

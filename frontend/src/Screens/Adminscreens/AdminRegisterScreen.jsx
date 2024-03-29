@@ -20,7 +20,7 @@ const AdminRegisterScreen = () => {
   const submitHandler = async (e) => {
     e.preventDefault();
     try {
-      const res = await adminRegistrations({ user_role: role, email: email, password: password }).unwrap();
+      const res = await adminRegistrations({ role: role, email: email, password: password }).unwrap();
       console.log(res);
       if (res.user) {
         toast.success("Registration successful!")
@@ -42,9 +42,9 @@ const AdminRegisterScreen = () => {
   };
   return (
     <>
-      <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
+      <div className="flex min-h-full flex-1 flex-col justify-center">
         <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-          <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
+          <h2 className="text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
             Register Authorities
           </h2>
         </div>
