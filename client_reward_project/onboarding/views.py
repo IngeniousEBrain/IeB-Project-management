@@ -2,9 +2,9 @@ from django.contrib.auth import authenticate
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
-from .serializers import ManagerRegistrationSerializer, SendCredentialsEmailSerializer, SendUserResetPasswordEmailSerializer, UserChangePasswordSerializer, UserLoginSerializer, UserRegistrationSerializer, UserResetPasswordSerializer, UserSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated
+from .serializers import ClientRegistrationSerializer, ClientSerializer, KAHRegistrationSerializer, KAHSerializer, LoginSerializer, ManagerRegistrationSerializer, ManagerSerializer, SendCredentialsEmailSerializer, SendUserResetPasswordEmailSerializer, UserChangePasswordSerializer, UserResetPasswordSerializer, UserSerializer
 
 
 def get_tokens_for_user(user):
@@ -15,25 +15,58 @@ def get_tokens_for_user(user):
         'access': str(refresh.access_token),
     }
 
-class UserRegistrationView(APIView):
+class ClientRegistrationView(APIView):
     def post(self, request, format=None):
-        serializer = UserRegistrationSerializer(data=request.data)
+        serializer = ClientRegistrationSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             user = serializer.save()
             token = get_tokens_for_user(user)
             return Response({'user': serializer.data, 'token': token, 'msg':'Registration Successful'}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
-class UserLoginView(APIView):
+class EmployeeRegistrationView(APIView):
     def post(self, request, format=None):
-        serializer = UserLoginSerializer(data=request.data)
+        if request.data['role'] == 'project_manager':
+            serializer = ManagerRegistrationSerializer(data=request.data)
+        elif request.data['role'] == 'key_account_holder':
+            serializer = KAHRegistrationSerializer(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            user = serializer.save()
+            return Response({'user': serializer.data, 'msg':'Registration Successful'}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+class LoginView(APIView):
+    def post(self, request, format=None):
+        serializer = LoginSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             email = serializer.data.get('email')
             password = serializer.data.get('password')
             user = authenticate(email=email, password=password)
             if user is not None:
-                userDetails = UserSerializer(user)
+                try:
+                    client = user.client
+                    print("Client")
+                    userDetails = ClientSerializer(client)
+                except:
+                    pass
+
+                try:
+                    manager = user.manager
+                    print("Manager")
+                    userDetails = ManagerSerializer(user.manager)
+                except:
+                    pass
+
+                try:
+                    kah = user.kah
+                    print("Key Account Holder")
+                    userDetails = KAHSerializer(user.kah)
+                except:
+                    pass
+
+                if user.is_staff:
+                    userDetails = UserSerializer(user)
                 print(userDetails.data)
                 token = get_tokens_for_user(user)
                 return Response({'user': userDetails.data, 'token': token, 'msg':'Login successful'}, status=status.HTTP_200_OK)
@@ -74,14 +107,6 @@ class UserLogoutView(APIView):
             return Response({'msg':'Successfully logged out'}, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        
-class ManagerRegistrationView(APIView):
-    def post(self, request, format=None):
-        serializer = ManagerRegistrationSerializer(data=request.data)
-        if serializer.is_valid(raise_exception=True):
-            user = serializer.save()
-            return Response({'user': serializer.data, 'msg':'Registration Successful'}, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         
 class SendCredentialEmailView(APIView):

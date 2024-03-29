@@ -1,20 +1,35 @@
 from rest_framework import serializers
 from .utils import Util
-from .models import CustomUser
+from .models import KAH, Manager, User, Client
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.utils.encoding import smart_str, force_bytes, DjangoUnicodeDecodeError
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = CustomUser
-        fields =  ['user_role', 'ph_number', 'email', 'first_name', 'last_name', 'profile_picture', 'client_code', 'geographical_region', 'currency', 'address']
+        model = User
+        fields =  ['email', 'is_staff', 'is_superuser']
 
-class UserRegistrationSerializer(serializers.ModelSerializer):
+class ClientSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Client
+        fields =  ['role', 'client_code', 'geographical_region', 'currency', 'address', 'ph_number', 'email', 'first_name', 'last_name', 'profile_picture', 'is_staff']
+
+class ManagerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Manager
+        fields =  ['role', 'email', 'employee_id', 'is_staff']
+
+class KAHSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = KAH
+        fields =  ['role', 'email', 'employee_id', 'is_staff']
+
+class ClientRegistrationSerializer(serializers.ModelSerializer):
     confirm_password = serializers.CharField(style={'input_type':'password'}, write_only=True)
     class Meta:
-        model = CustomUser
-        fields =  ['user_role', 'ph_number', 'email', 'password', 'confirm_password', 'first_name', 'last_name', 'profile_picture', 'client_code', 'geographical_region', 'currency', 'address']
+        model = Client
+        fields =  ['role', 'ph_number', 'email', 'password', 'confirm_password', 'first_name', 'last_name', 'profile_picture', 'client_code', 'geographical_region', 'currency', 'address']
         extra_kwargs= {
             'password':{'write_only':True}
         }
@@ -22,7 +37,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     # Validating existing email and password with confirm password
     def validate(self, attrs):
         email = attrs.get('email')
-        if CustomUser.objects.filter(email=email).exists():
+        if User.objects.filter(email=email).exists():
             raise serializers.ValidationError("A user with this email already exists!")
         else:
             password = attrs.get('password')
@@ -32,13 +47,47 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         return attrs
     
     def create(self, validated_data):
-        return CustomUser.objects.create_user(**validated_data)
+        return Client.objects.create_user(**validated_data)
 
 
-class UserLoginSerializer(serializers.ModelSerializer):
+class ManagerRegistrationSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField()
+    # password = serializers.CharField(style={'input_type':'password'}, write_only=True)
+    class Meta:
+        model = Manager
+        fields =  ['role', 'email', 'password']
+
+    # Validating existing email
+    def validate(self, attrs):
+        email = attrs.get('email')
+        if User.objects.filter(email=email).exists():
+            raise serializers.ValidationError("A user with this email already exists!")
+        return attrs
+    
+    def create(self, validated_data):
+        return Manager.objects.create_user(**validated_data)
+    
+class KAHRegistrationSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField()
+    # password = serializers.CharField(style={'input_type':'password'}, write_only=True)
+    class Meta:
+        model = KAH
+        fields =  ['role', 'email', 'password']
+
+    # Validating existing email
+    def validate(self, attrs):
+        email = attrs.get('email')
+        if User.objects.filter(email=email).exists():
+            raise serializers.ValidationError("A user with this email already exists!")
+        return attrs
+    
+    def create(self, validated_data):
+        return KAH.objects.create_user(**validated_data)
+
+class LoginSerializer(serializers.ModelSerializer):
     email = serializers.EmailField()
     class Meta:
-        model = CustomUser
+        model = Client
         fields = ['email', 'password']
 
 class UserChangePasswordSerializer(serializers.Serializer):
@@ -64,8 +113,8 @@ class SendUserResetPasswordEmailSerializer(serializers.Serializer):
 
     def validate(self, attrs):
         email = attrs.get('email')
-        if CustomUser.objects.filter(email=email).exists():
-            user = CustomUser.objects.get(email=email)
+        if User.objects.filter(email=email).exists():
+            user = User.objects.get(email=email)
             uid = urlsafe_base64_encode(force_bytes(user.id))
             print('Encoded uid ', uid)
             token = PasswordResetTokenGenerator().make_token(user)
@@ -99,7 +148,7 @@ class UserResetPasswordSerializer(serializers.Serializer):
             if password and confirm_password and password!=confirm_password:
                 raise serializers.ValidationError("Passwords don't match")
             id = smart_str(urlsafe_base64_decode(uid))
-            user = CustomUser.objects.get(id=id)
+            user = User.objects.get(id=id)
             if not PasswordResetTokenGenerator().check_token(user, token):
                 raise serializers.ValidationError("Token is invalid or expired.")
             user.set_password(password)
@@ -109,22 +158,6 @@ class UserResetPasswordSerializer(serializers.Serializer):
             PasswordResetTokenGenerator().check_token(user, token)
             raise serializers.ValidationError("Token is invalid or expired.")
         
-class ManagerRegistrationSerializer(serializers.ModelSerializer):
-    email = serializers.EmailField()
-    # password = serializers.CharField(style={'input_type':'password'}, write_only=True)
-    class Meta:
-        model = CustomUser
-        fields =  ['user_role', 'email', 'password']
-
-    # Validating existing email
-    def validate(self, attrs):
-        email = attrs.get('email')
-        if CustomUser.objects.filter(email=email).exists():
-            raise serializers.ValidationError("A user with this email already exists!")
-        return attrs
-    
-    def create(self, validated_data):
-        return CustomUser.objects.create_user(**validated_data)
         
 class SendCredentialsEmailSerializer(serializers.Serializer):
     email = serializers.EmailField()

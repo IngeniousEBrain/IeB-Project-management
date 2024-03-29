@@ -31,7 +31,7 @@ SECRET_KEY = env('SECRET_KEY')
 DEBUG = True
 
 ALLOWED_HOSTS = []
-AUTH_USER_MODEL = 'onboarding.CustomUser'
+AUTH_USER_MODEL = 'onboarding.User'
 
 # Application definition
 
@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
+    'project',
 ]
 
 MIDDLEWARE = [
@@ -164,7 +165,7 @@ EMAIL_USE_TLS = True
 
 # JWT Settings
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=2),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=10),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
     # "ROTATE_REFRESH_TOKENS": False,
     "BLACKLIST_AFTER_ROTATION": True,
