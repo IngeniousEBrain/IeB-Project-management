@@ -89,9 +89,10 @@ const AssignProjectScreen = () => {
       <div>
         {isLoading ? (
           <Loading />
-        ) : ( rows > 0 ?
+        ) : ( rows?.length > 0 ?
           <DataGrid
             className=""
+            disableDensitySelector
             rows={rows.map((item, index) => ({ id: index + 1, ...item }))}
             columns={columns}
             initialState={{
@@ -108,6 +109,8 @@ const AssignProjectScreen = () => {
                 quickFilterProps: {
                   debounceMs: 500,
                 },
+                printOptions: { disableToolbarButton: true },
+                csvOptions: { disableToolbarButton: true },
               },
             }}
             pageSizeOptions={[5]}
