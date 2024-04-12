@@ -106,6 +106,18 @@ const SideBar = () => {
               </NavLink>
             </li>
 
+            <li>
+            <NavLink
+                to="/admin/client-register"
+                className={
+                    ({ isActive }) => ( isActive ? "bg-gray-100 flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-slate-700 rounded-lg hover:bg-gray-100 dark:bg-gray-900 dark:text-white dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600" : "flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-slate-700 rounded-lg hover:bg-gray-100 dark:bg-gray-900 dark:text-white dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600")
+                  }
+              >
+                <UsersIcon className="h-5 w-5" />
+                Add Client
+              </NavLink>
+            </li>
+
             <li className="hs-accordion" id="account-accordion">
               <NavLink
                 to="/admin/assign"
@@ -118,15 +130,19 @@ const SideBar = () => {
               </NavLink>
             </li>
 
-            <li>
-              <button
-                type="button"
-                className="w-full text-start flex items-center gap-x-3.5 py-2 px-2.5 hs-accordion-active:text-blue-600 hs-accordion-active:hover:bg-transparent text-sm text-slate-700 rounded-lg hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-900 dark:text-slate-400 dark:hover:text-slate-300 dark:hs-accordion-active:text-white dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
+            <li className="hs-accordion" id="account-accordion">
+              <NavLink
+                to="/admin/allprojects"
+                className={
+                    ({ isActive }) => ( isActive ? "bg-gray-100 flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-slate-700 rounded-lg hover:bg-gray-100 dark:bg-gray-900 dark:text-white dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600" : "flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-slate-700 rounded-lg hover:bg-gray-100 dark:bg-gray-900 dark:text-white dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600")
+                  }
               >
                 <FolderIcon className="h-5 w-5" />
-                Projects
-              </button>
+                All Projects
+              </NavLink>
             </li>
+
+            
           </ul>
         </nav>
       </div>

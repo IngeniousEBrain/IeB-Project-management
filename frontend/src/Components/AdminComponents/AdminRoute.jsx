@@ -12,7 +12,7 @@ const AdminRoute = () => {
       </div>
     </div>
   ) : (
-    <Navigate to="/login" replace />
+    <Navigate to="/" replace />
   );
 };
 export default AdminRoute;

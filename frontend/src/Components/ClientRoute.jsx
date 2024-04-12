@@ -6,7 +6,7 @@ const ClientRoute = () => {
   return userInfo && userInfo.role === "client" ? (
     <Outlet />
   ) : (
-    <Navigate to='/login' replace />
+    <Navigate to='/' replace />
   );
 };
 export default ClientRoute;

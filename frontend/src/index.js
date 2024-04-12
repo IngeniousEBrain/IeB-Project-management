@@ -27,15 +27,14 @@ import ClientRoute from './Components/ClientRoute';
 import AssignProjectScreen from './Screens/Adminscreens/AssignProjectScreen';
 import EmployeeRoute from './Components/EmployeeRoute';
 import EmployeeHomeScreen from './Screens/EmployeeScreens/EmployeeHomeScreen';
+import AllProjectsScreen from './Screens/Adminscreens/AllProjectsScreen';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     
     <Route path="" element={<App />}>
-      
+      <Route path="/" element={<LoginScreen />} />
       <Route path="*" element={<NotFoundScreen />} />
-      <Route path="/login" element={<LoginScreen />} />
-      <Route path="/register" element={<RegisterScreen />} />
       <Route path="/send-password-reset-mail" element={<SendEmailScreen />} />
       <Route path="/api/user/resetpassword/:id/:token" element={<ResetPasswordScreen />} />
       
@@ -43,7 +42,7 @@ const router = createBrowserRouter(
         <Route path="/settings" element={<SettingsScreen />} />
       </Route>
       <Route path="" element={<ClientRoute />}>
-        <Route exact path="/" element={<HomeScreen />} />
+        <Route path="/client" element={<HomeScreen />} />
         <Route path="/create-project" element={<AddProjectScreen />} />
       </Route>
       <Route path="" element={<EmployeeRoute />}>
@@ -51,8 +50,10 @@ const router = createBrowserRouter(
       </Route>
       <Route path="" element={<AdminRoute />}>
         <Route path="/admin" element={<AdminDashboardScreen />} />
+        <Route path="/admin/allprojects" element={<AllProjectsScreen />} />
         <Route path="/admin/assign" element={<AssignProjectScreen />} />
         <Route path="/admin/register" element={<AdminRegisterScreen />} />
+        <Route path="/admin/client-register" element={<RegisterScreen />} />
       </Route>
     </Route> 
   )

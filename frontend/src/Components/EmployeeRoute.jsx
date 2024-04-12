@@ -6,7 +6,7 @@ const EmployeeRoute = () => {
   return userInfo && (userInfo.role === "project_manager" || userInfo.role === "key_account_holder") ? (
     <Outlet />
   ) : (
-    <Navigate to='/login' replace />
+    <Navigate to='/' replace />
   );
 };
 export default EmployeeRoute;
