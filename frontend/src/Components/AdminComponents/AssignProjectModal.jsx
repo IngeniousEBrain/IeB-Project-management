@@ -8,13 +8,12 @@ import {
   useGetProjectByIdQuery,
 } from "../../slices/projectApiSlice";
 import { toast } from "react-toastify";
-import Loading from "../../Components/Loading";
+import Loading from "../Loading";
 
-const ProjectScreen = ({ id, overlayOpen, closeOverlay }) => {
+const AssignProjectModal = ({ id, overlayOpen, closeOverlay }) => {
 
-  const [isOpen, setIsOpen] = useState(true);
-  const [selectedManager, setSelectedManager] = useState({});
-  const [selectedAccountHolder, setSelectedAccountHolder] = useState({});
+  const [selectedManager, setSelectedManager] = useState(null);
+  const [selectedAccountHolder, setSelectedAccountHolder] = useState(null);
 
 
   const {data: projectDetails, isLoading: ProjectLoading} = useGetProjectByIdQuery(id);
@@ -28,9 +27,7 @@ const ProjectScreen = ({ id, overlayOpen, closeOverlay }) => {
   } = useGetKeyAccountHoldersQuery();
 
   const [assign, { isLoading: Assigning }] = useAssignProjectToAuthoritiesMutation(id);
-  // console.log(managersData);
-  // console.log(accountHolders);
-  console.log(projectDetails);
+
   const project = projectDetails?.project;
 
   const managerOptions = [];
@@ -133,6 +130,7 @@ const ProjectScreen = ({ id, overlayOpen, closeOverlay }) => {
                       </label>
                       <div className="mt-2">
                         <Select
+                          name="Manager"
                           options={managerOptions}
                           value={selectedManager}
                           onChange={setSelectedManager}
@@ -151,6 +149,7 @@ const ProjectScreen = ({ id, overlayOpen, closeOverlay }) => {
                       </label>
                       <div className="mt-2">
                         <Select
+                          name="AccountHolder"
                           options={kahOptions}
                           value={selectedAccountHolder}
                           onChange={setSelectedAccountHolder}
@@ -164,7 +163,6 @@ const ProjectScreen = ({ id, overlayOpen, closeOverlay }) => {
                       <button
                         type="submit"
                         className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-                        // onClick={() => closeOverlay()}
                       >
                         Assign Project
                       </button>
@@ -181,4 +179,4 @@ const ProjectScreen = ({ id, overlayOpen, closeOverlay }) => {
   );
 };
 
-export default ProjectScreen;
+export default AssignProjectModal;

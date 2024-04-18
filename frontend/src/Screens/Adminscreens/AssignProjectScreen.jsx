@@ -3,7 +3,7 @@ import { useUnassignedProjectsQuery } from "../../slices/projectApiSlice";
 import Loading from "../../Components/Loading";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { FaPencil, FaTrash } from "react-icons/fa6";
-import ProjectScreen from "./ProjectScreen";
+import AssignProjectModal from "../../Components/AdminComponents/AssignProjectModal";
 
 const AssignProjectScreen = () => {
   const [edit, setEdit] = useState(false);
@@ -120,7 +120,7 @@ const AssignProjectScreen = () => {
         )}
       </div>
       {edit ? (
-        <ProjectScreen id={editid} overlayOpen={edit} closeOverlay={closeEdit} />
+        <AssignProjectModal id={editid} overlayOpen={edit} closeOverlay={closeEdit} />
       ) : (
         ""
       )}
