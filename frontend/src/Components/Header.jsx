@@ -1,4 +1,4 @@
-import { Fragment } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { Disclosure, Menu, Transition } from "@headlessui/react";
 import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { UserCircleIcon } from "@heroicons/react/24/solid";
@@ -21,18 +21,34 @@ const navigation = [
   { name: "Calendar", href: "#", current: false },
   { name: "Reports", href: "#", current: false },
 ];
-const userNavigation = [
-  { name: "Your Profile", href: "#" },
-  { name: "Settings", href: "/settings" },
-  { name: "Sign out", href: "#" },
-];
+
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
 
 const Header = () => {
+  const [profileHref, setProfileHref] = useState("")
   const { userInfo } = useSelector((state) => state.auth);
+
+  useEffect(() => {
+    if (userInfo && userInfo.role === "client") {
+      setProfileHref("/client");
+    }
+    else if(userInfo && userInfo.is_staff){
+      setProfileHref("/admin");
+    }
+    else if (userInfo && (userInfo.role === "project_manager" || userInfo.role === "key_account_holder") ){
+      setProfileHref("/employee");
+    }
+  }, [userInfo]);
+
+
+  const userNavigation = [
+    { name: "Your Profile", href: profileHref },
+    { name: "Settings", href: "/settings" },
+    { name: "Sign out", href: "#" },
+  ];
 
   const dispatch = useDispatch();
   const [signout, { isLoading }] = useLogoutMutation();
@@ -48,7 +64,6 @@ const Header = () => {
       dispatch(logout());
     } catch (err) {
       console.log("error");
-      // toast.error(err?.data.message || err.error);
     }
   };
   return (
