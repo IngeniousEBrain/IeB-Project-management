@@ -6,10 +6,8 @@ import {
   useGetClientsQuery,
   useGetKeyAccountHoldersQuery,
   useGetManagersQuery,
-  useGetProjectByIdQuery,
 } from "../../slices/projectApiSlice";
 import { toast } from "react-toastify";
-import Loading from "../Loading";
 import { FaXmark } from "react-icons/fa6";
 
 const AddProjectModal = ({ overlayOpen, closeOverlay }) => {
@@ -21,11 +19,11 @@ const AddProjectModal = ({ overlayOpen, closeOverlay }) => {
   const [currency, setCurrency] = useState("");
   const [service, setService] = useState("");
   const [status, setStatus] = useState("pending");
-  const [proposalDocument, setProposalDocument] = useState();
+  const [proposalDocument, setProposalDocument] = useState(null);
   const [projectFiles, setProjectFiles] = useState([]);
-  const [selectedClient, setSelectedClient] = useState({});
-  const [selectedManager, setSelectedManager] = useState({});
-  const [selectedAccountHolder, setSelectedAccountHolder] = useState({});
+  const [selectedClient, setSelectedClient] = useState(null);
+  const [selectedManager, setSelectedManager] = useState(null);
+  const [selectedAccountHolder, setSelectedAccountHolder] = useState(null);
 
   const InputRef = useRef(null);
   const handleFileInput = () => {
@@ -88,7 +86,9 @@ const AddProjectModal = ({ overlayOpen, closeOverlay }) => {
       formData.append("project_name", projectName);
       formData.append("project_code", projectCode);
       formData.append("project_description", projectDescription);
-      formData.append("proposal_upload_file", proposalDocument);
+      if(proposalDocument != null) {
+        formData.append("proposal_upload_file", proposalDocument);
+      }
       formData.append("client", selectedClient.value);
       formData.append("project_manager", selectedManager.value);
       formData.append("account_manager", selectedAccountHolder.value);
@@ -99,7 +99,7 @@ const AddProjectModal = ({ overlayOpen, closeOverlay }) => {
       formData.append("status", status);
       console.log("form", formData);
       const res = await addProject(formData);
-      if (res.status === 201) {
+      if (res.msg) {
         toast.success("Project assigned successfully");
         closeOverlay();
       }
@@ -226,6 +226,7 @@ const AddProjectModal = ({ overlayOpen, closeOverlay }) => {
                       </label>
                       <div className="mt-2">
                         <Select
+                          name="client"
                           options={clientOptions}
                           value={selectedClient}
                           onChange={setSelectedClient}
@@ -244,6 +245,7 @@ const AddProjectModal = ({ overlayOpen, closeOverlay }) => {
                       </label>
                       <div className="mt-2">
                         <Select
+                          name="Manager"
                           options={managerOptions}
                           value={selectedManager}
                           onChange={setSelectedManager}
@@ -262,6 +264,7 @@ const AddProjectModal = ({ overlayOpen, closeOverlay }) => {
                       </label>
                       <div className="mt-2">
                         <Select
+                          name="AccountHolder"
                           options={kahOptions}
                           value={selectedAccountHolder}
                           onChange={setSelectedAccountHolder}
@@ -399,8 +402,7 @@ const AddProjectModal = ({ overlayOpen, closeOverlay }) => {
                           type="file"
                           name="proposal"
                           id="proposal"
-                          onChange={(e) => setProposalDocument(e.target.files)}
-                          required
+                          onChange={(e) => setProposalDocument(e.target.files[0])}
                           className="block w-full rounded-md border-0 py-1.5 px-2 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                         />
                       </div>
@@ -425,7 +427,6 @@ const AddProjectModal = ({ overlayOpen, closeOverlay }) => {
                           multiple
                           ref={InputRef}
                           onChange={handleFileChange}
-                          required
                           className="hidden"
                         />
                         {projectFiles.length > 0 && (

@@ -9,6 +9,7 @@ const AddProjectScreen = () => {
   const [projectName, setProjectName] = useState("");
   const [projectDescription, setProjectDescription] = useState("");
   const [cost, setCost] = useState("");
+  const [currency, setCurrency] = useState("");
   const [service, setService] = useState("");
 
   const { userInfo } = useSelector((state) => state.auth);
@@ -18,14 +19,19 @@ const AddProjectScreen = () => {
   const submitHandler = async (e) => {
     e.preventDefault();
     try {
-      const res = await addProject({
-        project_name: projectName,
-        project_description: projectDescription,
-        project_cost: cost,
-        type_of_service: service,
-      }).unwrap();
-      toast.success(res.msg);
-      navigate("/");
+      const formData = new FormData();
+      formData.append("project_name", projectName);
+      formData.append("project_description", projectDescription);
+      formData.append("project_cost", cost);
+      formData.append("currency", currency);
+      formData.append("type_of_service", service);
+      console.log("form", formData);
+      const res = await addProject(formData);
+      if(res.msg){
+        toast.success(res.msg);
+        navigate("/client");
+      }
+      
     } catch (err) {
       console.log(err);
       if (err.data.project_name) toast.error(err.data.project_name[0]);
@@ -35,9 +41,9 @@ const AddProjectScreen = () => {
     }
   };
   return (
-    <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
+    <div className="flex min-h-full flex-1 flex-col justify-center p-6 lg:p-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-5xl">
-        <form onSubmit={submitHandler} autoComplete="off">
+        <form onSubmit={submitHandler} autoComplete="off" type="multipart/form-data">
           <div className="space-y-4">
             <h2 className="text-center text-2xl font-bold tracking-tight text-gray-900">
               Enter Project Details
@@ -47,7 +53,7 @@ const AddProjectScreen = () => {
               <div className="mt-4 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
                 <div className="col-span-full">
                   <label
-                    htmlFor="street-address"
+                    htmlFor="name"
                     className="block text-sm font-medium leading-6 text-gray-900"
                   >
                     Project Name
@@ -55,9 +61,9 @@ const AddProjectScreen = () => {
                   <div className="mt-2">
                     <input
                       type="text"
-                      name="street-address"
-                      id="street-address"
-                      autoComplete="street-address"
+                      name="name"
+                      id="name"
+                      autoComplete="off"
                       onChange={(e) => setProjectName(e.target.value)}
                       required
                       className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
@@ -67,7 +73,7 @@ const AddProjectScreen = () => {
 
                 <div className="col-span-full">
                   <label
-                    htmlFor="street-address"
+                    htmlFor="description"
                     className="block text-sm font-medium leading-6 text-gray-900"
                   >
                     Project Description
@@ -75,9 +81,9 @@ const AddProjectScreen = () => {
                   <div className="mt-2">
                     <textarea
                       type="text"
-                      name="street-address"
-                      id="street-address"
-                      autoComplete="street-address"
+                      name="description"
+                      id="description"
+                      autoComplete="off"
                       onChange={(e) => setProjectDescription(e.target.value)}
                       required
                       className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
@@ -86,27 +92,40 @@ const AddProjectScreen = () => {
                 </div>
 
                 <div className="sm:col-span-3 sm:col-start-1">
-                  <label
-                    htmlFor="cost"
-                    className="block text-sm font-medium leading-6 text-gray-900"
-                  >
-                    Cost
-                  </label>
-                  <div className="relative mt-2 rounded-md shadow-sm">
-                    <input
-                      type="text"
-                      name="cost"
-                      id="cost"
-                      autoComplete="off"
-                      onChange={(e) => setCost(e.target.value)}
-                      required
-                      className="block w-full rounded-md border-0 py-1.5 pl-7 pr-20 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                    />
-                    <div className="absolute inset-y-0 right-0 flex items-center mx-2 text-gray-500">
-                      {userInfo.currency.toUpperCase()}
+                      <label
+                        htmlFor="cost"
+                        className="block text-md font-medium text-gray-700"
+                      >
+                        Cost
+                      </label>
+                      <div className="relative mt-2 flex gap-2 rounded-md shadow-sm">
+                        <input
+                          type="text"
+                          name="cost"
+                          id="cost"
+                          autoComplete="off"
+                          onChange={(e) => setCost(e.target.value)}
+                          required
+                          className="block w-4/5 rounded-md border-0 py-1.5 pr-20 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                        />
+                        <div className="">
+                          <select
+                            id="currency"
+                            name="currency"
+                            onChange={(e) => setCurrency(e.target.value)}
+                            required
+                            className="block rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                          >
+                            <option value="" selected>
+                              Select
+                            </option>
+                            <option value="usd">USD</option>
+                            <option value="euro">EURO</option>
+                            <option value="inr">INR</option>
+                          </select>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
 
                 <div className="sm:col-span-3">
                   <label
@@ -131,7 +150,7 @@ const AddProjectScreen = () => {
             </div>
           </div>
 
-          <div className="mt-6 flex items-center justify-end">
+          <div className="my-6 flex items-center justify-end">
             {isLoading && <Loading />}
             <button
               type="submit"

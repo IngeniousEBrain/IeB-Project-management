@@ -20,7 +20,7 @@ const RegisterScreen = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [clientCode, setClientCode] = useState("");
-  const [country, setCountry] = useState("");
+  const [country, setCountry] = useState(null);
   const [currency, setCurrency] = useState("");
   const [streetAddress, setStreetAddress] = useState("");
   const [city, setCity] = useState("");
@@ -272,6 +272,7 @@ const RegisterScreen = () => {
                   </label>
                   <div className="mt-2">
                     <Select
+                      name="country"
                       options={options}
                       value={country}
                       onChange={setCountry}

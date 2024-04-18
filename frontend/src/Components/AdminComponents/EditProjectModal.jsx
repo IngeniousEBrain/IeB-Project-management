@@ -2,7 +2,6 @@ import { Dialog, Transition } from "@headlessui/react";
 import { Fragment, useEffect, useRef, useState } from "react";
 import Select, { components } from "react-select";
 import {
-  useAssignProjectToAuthoritiesMutation,
   useDownloadDocumentMutation,
   useDownloadProposalMutation,
   useEditProjectMutation,
@@ -21,32 +20,40 @@ const EditProjectModal = ({ id, overlayOpen, closeOverlay }) => {
     useGetProjectByIdQuery(id);
 
   const [project, setProject] = useState({});
-  const [projectFiles, setProjectFiles] = useState({});
-  const [selectedClient, setSelectedClient] = useState({});
-  const [selectedManager, setSelectedManager] = useState({});
-  const [selectedAccountHolder, setSelectedAccountHolder] = useState({});
-  console.log(project);
+  const [projectFiles, setProjectFiles] = useState([]);
+  const [newFiles, setNewFiles] = useState([]);
+  const [proposalDocument, setProposalDocument] = useState(null);
+  const [selectedClient, setSelectedClient] = useState(null);
+  const [selectedManager, setSelectedManager] = useState(null);
+  const [selectedAccountHolder, setSelectedAccountHolder] = useState(null);
 
+  console.log(selectedManager)
   useEffect(() => {
     if (projectDetails) {
       setProject(projectDetails.project);
       setProjectFiles(projectDetails.documents);
-      setSelectedClient({
-        label: projectDetails.project.client?.email,
-        value: projectDetails.project.client?.email,
-      });
-      setSelectedManager({
-        label: projectDetails.project.project_manager?.email,
-        value: projectDetails.project.project_manager?.email,
-      });
-      setSelectedAccountHolder({
-        label: projectDetails.project.account_manager?.email,
-        value: projectDetails.project.account_manager?.email,
-      });
+      setSelectedManager(projectDetails.project.project_manager?.email);
+      setSelectedAccountHolder(projectDetails.project.account_manager?.email);
+      if(projectDetails.project.client.email){
+        setSelectedClient({
+          label: projectDetails.project.client?.email,
+          value: projectDetails.project.client?.email,
+        });
+      }
+      if(projectDetails.project.project_manager.email){
+        setSelectedManager({
+          label: projectDetails.project.project_manager?.email,
+          value: projectDetails.project.project_manager?.email,
+        });
+      }
+      if(projectDetails.project.account_manager.email){
+        setSelectedAccountHolder({
+          label: projectDetails.project.account_manager?.email,
+          value: projectDetails.project.account_manager?.email,
+        });
+      }
     }
   }, [projectDetails]);
-
-  // const [projectFiles, setProjectFiles] = useState([]);
 
   const InputRef = useRef(null);
   const handleFileInput = () => {
@@ -98,25 +105,28 @@ const EditProjectModal = ({ id, overlayOpen, closeOverlay }) => {
 
   const handleFileChange = (e) => {
     const fileList = Array.from(e.target.files);
-    // setProjectFiles([...projectFiles, ...fileList]);
+    setNewFiles([...newFiles, ...fileList]);
   };
 
   const removeAttachment = (index) => {
-    // const updatedFileList = [...projectFiles];
-    // updatedFileList.splice(index, 1);
-    // setProjectFiles(updatedFileList);
+    const updatedFileList = [...newFiles];
+    updatedFileList.splice(index, 1);
+    setNewFiles(updatedFileList);
   };
 
   const submitHandler = async (e) => {
     e.preventDefault();
     try {
       const formData = new FormData();
-      // for (let i = 0; i < projectFiles.length; i++) {
-      //   formData.append("documents", projectFiles[i]);
-      // }
+      for (let i = 0; i < projectFiles.length; i++) {
+        formData.append("documents", newFiles[i]);
+      }
       formData.append("project_name", project.project_name);
       formData.append("project_code", project.project_code);
       formData.append("project_description", project.project_description);
+      if(proposalDocument != null) {
+        formData.append("proposal_upload_file", proposalDocument);
+      }
       formData.append("client", selectedClient.value);
       formData.append("project_manager", selectedManager.value);
       formData.append("account_manager", selectedAccountHolder.value);
@@ -132,7 +142,7 @@ const EditProjectModal = ({ id, overlayOpen, closeOverlay }) => {
         closeOverlay();
       }
     } catch (err) {
-      console.log(err);
+      console.log(err.data);
       if (err.data.project_manager) toast.error(err.data.project_manager[0]);
       if (err.data.account_manager) toast.error(err.data.account_manager[0]);
       if (err.data.non_field_errors) toast.error(err.data.non_field_errors[0]);
@@ -240,6 +250,7 @@ const EditProjectModal = ({ id, overlayOpen, closeOverlay }) => {
                               id="name"
                               value={project.project_name}
                               onChange={handleChange}
+                              required
                               className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                             />
                           </div>
@@ -255,11 +266,12 @@ const EditProjectModal = ({ id, overlayOpen, closeOverlay }) => {
                           <div className="mt-2">
                             <input
                               type="text"
-                              name="projet_code"
+                              name="project_code"
                               id="code"
                               autoComplete="off"
                               value={project.project_code}
                               onChange={handleChange}
+                              required
                               className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                             />
                           </div>
@@ -280,6 +292,7 @@ const EditProjectModal = ({ id, overlayOpen, closeOverlay }) => {
                               autoComplete="off"
                               value={project.project_description}
                               onChange={handleChange}
+                              required
                               className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                             />
                           </div>
@@ -294,10 +307,12 @@ const EditProjectModal = ({ id, overlayOpen, closeOverlay }) => {
                           </label>
                           <div className="mt-2">
                             <Select
+                              name="client"
                               options={clientOptions}
                               value={selectedClient}
-                              onChange={setSelectedClient}
+                              onChange={(option) => setSelectedClient(option)}
                               components={{ Input }}
+                              required
                             />
                           </div>
                         </div>
@@ -311,10 +326,12 @@ const EditProjectModal = ({ id, overlayOpen, closeOverlay }) => {
                           </label>
                           <div className="mt-2">
                             <Select
+                              name="Manager"
                               options={managerOptions}
                               value={selectedManager}
-                              onChange={setSelectedManager}
+                              onChange={(option) => setSelectedManager(option)}
                               components={{ Input }}
+                              required
                             />
                           </div>
                         </div>
@@ -328,10 +345,12 @@ const EditProjectModal = ({ id, overlayOpen, closeOverlay }) => {
                           </label>
                           <div className="mt-2">
                             <Select
+                              name="AccountHolder"
                               options={kahOptions}
                               value={selectedAccountHolder}
-                              onChange={setSelectedAccountHolder}
+                              onChange={(option) => setSelectedAccountHolder(option)}
                               components={{ Input }}
+                              required
                             />
                           </div>
                         </div>
@@ -346,11 +365,12 @@ const EditProjectModal = ({ id, overlayOpen, closeOverlay }) => {
                       <div className="relative mt-2 flex gap-2 rounded-md shadow-sm">
                         <input
                           type="text"
-                          name="cost"
+                          name="project_cost"
                           id="cost"
                           autoComplete="off"
                           value={project.project_cost}
                           onChange={handleChange}
+                          required
                           className="block w-4/5 rounded-md border-0 py-1.5 pr-20 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                         />
                         <div className="">
@@ -359,6 +379,7 @@ const EditProjectModal = ({ id, overlayOpen, closeOverlay }) => {
                             name="currency"
                             value={project.currency}
                             onChange={handleChange}
+                            required
                             className="block rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                           >
                             <option value="" selected>
@@ -405,6 +426,7 @@ const EditProjectModal = ({ id, overlayOpen, closeOverlay }) => {
                               name="business_unit"
                               value={project.business_unit}
                               onChange={handleChange}
+                              required
                               className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                             >
                               <option value="" selected disabled>
@@ -463,9 +485,9 @@ const EditProjectModal = ({ id, overlayOpen, closeOverlay }) => {
                               type="file"
                               name="proposal"
                               id="proposal"
-                              // onChange={(e) =>
-                              //   setProposalDocument(e.target.files)
-                              // }
+                              onChange={(e) =>
+                                setProposalDocument(e.target.files[0])
+                              }
                               className="block w-full rounded-md border-0 py-1.5 px-2 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                             />
                           </div>
@@ -495,7 +517,6 @@ const EditProjectModal = ({ id, overlayOpen, closeOverlay }) => {
                                 </button>
                                 <button
                                   type="button"
-                                  // onClick={() => removeAttachment(index)}
                                 >
                                   <FaXmark className="h-4 w-4 text-gray-500" />
                                 </button>
@@ -524,8 +545,28 @@ const EditProjectModal = ({ id, overlayOpen, closeOverlay }) => {
                               onChange={handleFileChange}
                               className="hidden"
                             />
+                            {newFiles.length > 0 && (
+                              <div className="mt-2 text-md font-medium block p-2 border rounded-md">
+                                <h5 className="px-2 mb-4 text-indigo-700">Newly uploaded files</h5>
+                                {newFiles.map((file, index) => (
+                                  <div
+                                  className="m-2 px-2 py-1 flex justify-between items-center border rounded-sm text-md text-gray-700"
+                                  key={index}
+                                >
+                                  <span>{file.name}</span>
+                                  <button
+                                    type="button"
+                                    onClick={() => removeAttachment(index)}
+                                  >
+                                    <FaXmark className="h-4 w-4 text-gray-500" />
+                                  </button>
+                                </div>
+                                ))}
+                              </div>
+                            )}
                             {projectFiles.length > 0 && (
                               <div className="mt-2 text-md font-medium block p-2 border rounded-md">
+                                <h5 className="px-2 mb-4 text-indigo-700">Previously uploaded files</h5>
                                 {projectFiles.map((file, index) => (
                                   <div
                                     className="m-2 px-2 py-1 flex justify-between items-center border rounded-sm text-md text-gray-700"
