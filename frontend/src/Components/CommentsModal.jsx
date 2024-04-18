@@ -15,8 +15,6 @@ const CommentsModal = ({ id, overlayOpen, closeOverlay }) => {
     useGetCommentsByProjectIdQuery(id);
 
   console.log(allcomments);
-  const navigate = useNavigate();
-  useEffect(() => {}, [allcomments]);
 
   const submitComment = async (e) => {
     e.preventDefault();
@@ -28,6 +26,7 @@ const CommentsModal = ({ id, overlayOpen, closeOverlay }) => {
       console.log(res);
       if (res.msg) {
         toast.success("Comment added successfully");
+        setNewComment("");
       }
     } catch (err) {
       toast.error(err.error);
@@ -65,7 +64,7 @@ const CommentsModal = ({ id, overlayOpen, closeOverlay }) => {
                 leaveFrom="opacity-100 scale-100"
                 leaveTo="opacity-0 scale-95"
               >
-                <Dialog.Panel className="w-full max-w-xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                <Dialog.Panel className="w-full max-w-5xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
                   <Dialog.Title
                     as="h3"
                     className="text-xl font-medium leading-6 text-gray-900 border-b border-gray-900 pb-2"
@@ -89,6 +88,7 @@ const CommentsModal = ({ id, overlayOpen, closeOverlay }) => {
                           name="comment"
                           id="comment"
                           autoComplete="off"
+                          value={newComment}
                           onChange={(e) => setNewComment(e.target.value)}
                           required
                           className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
@@ -116,7 +116,7 @@ const CommentsModal = ({ id, overlayOpen, closeOverlay }) => {
                         <div className="my-4" key={index}>
                           <div className="flex justify-between">
                             <p className="font-semibold text-md text-gray-600">
-                              {comment.created_by.first_name}
+                              {comment.created_by.first_name || comment.created_by.email}
                             </p>
                             <p className="text-sm text-gray-500">
                               {comment.created_at}

@@ -20,11 +20,8 @@ const HomeScreen = () => {
   const [openStatus, setOpenStatus] = useState(false);
   const [openComment, setOpenComment] = useState(false);
   const { data: projects, isLoading, error } = useGetClientProjectsQuery();
-  const [statusUpdate, { isLoading: Updating }] = useStatusUpdateMutation();
   const [download] = useDownloadProposalMutation();
   const rows = projects?.projects;
-
-  const navigate = useNavigate();
 
   const openStatusModal = () => {
     setOpenStatus(true);
@@ -75,7 +72,7 @@ const HomeScreen = () => {
       headerName: "Manager",
       width: 210,
       renderCell: (params) => {
-        return <div>{params.row.project_manager.email}</div>;
+        return <div>{params.row.project_manager?.email}</div>;
       },
     },
     {
@@ -83,7 +80,7 @@ const HomeScreen = () => {
       headerName: "Key Account Holder",
       width: 210,
       renderCell: (params) => {
-        return <div>{params.row.account_manager.email}</div>;
+        return <div>{params.row.account_manager?.email}</div>;
       },
     },
     {
@@ -189,7 +186,7 @@ const HomeScreen = () => {
   return (
     <div className="bg-white">
       <main className="mx-auto max-w-8xl px-4 sm:px-6 lg:px-8">
-        <div className="flex items-baseline justify-between border-b border-gray-200 pb-4 pt-6">
+        <div className="flex items-baseline justify-between border-b-2 border-gray-200 pb-4 pt-6">
           {/* <div className="flex justify-between"> */}
           <h1 className="text-3xl font-bold font-sans tracking-normal text-gray-900 pb-2">
             Dashboard

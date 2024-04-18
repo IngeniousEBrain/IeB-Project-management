@@ -4,15 +4,10 @@ import {
   useStatusUpdateMutation,
 } from "../slices/projectApiSlice";
 import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
-// import { useRefetchQueries } from '@reduxjs/toolkit';
 
 const UpdateStatusModal = ({ id, overlayOpen, closeOverlay }) => {
   const [status, setStatus] = useState("pending");
   const [statusUpdate, isLoading] = useStatusUpdateMutation();
-
-  const navigate = useNavigate();
-  // const refetchQueries = useRefetchQueries();
 
   const submitStatus = async (e) => {
     e.preventDefault();
@@ -65,7 +60,7 @@ const UpdateStatusModal = ({ id, overlayOpen, closeOverlay }) => {
                     as="h3"
                     className="text-xl font-medium leading-6 text-gray-900 border-b border-gray-900 pb-2"
                   >
-                    Update Project Status
+                    Update Proposal Status
                   </Dialog.Title>
 
                   <form
