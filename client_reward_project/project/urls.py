@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import AddCommentView, AllProjectsView, AssignView, ClientsListView, CommentByProjectIdView, DisplayAssignedProjects, DisplayClientProjects, DownloadDocumentView, DownloadProposalView, FileUploadView, KAHListView, ManagersListView, ProjectCreationView, ProjectDetailsView, ProjectEditView, StatusUpdateView, UnassignedProjectsView
+from .views import AddCommentView, AllProjectsView, AssignView, ClientsListView, CommentByProjectIdView, DisplayAssignedProjects, DisplayClientProjects, DownloadDocumentView, DownloadProposalView, FileUploadView, KAHListView, ManagersListView, ProjectCreationView, ProjectDetailsView, ProjectEditView, ProjectStatusUpdateView, ProposalStatusChart, StatusUpdateView, UnassignedProjectsView
 
 urlpatterns = [
     path('project-creation/', ProjectCreationView.as_view()),
@@ -19,4 +19,5 @@ urlpatterns = [
     path('download-document/<id>/', DownloadDocumentView.as_view()),
     path('<id>/add-comment/', AddCommentView.as_view()),
     path('<id>/allcomments/', CommentByProjectIdView.as_view()),
+    path('project-status/<id>/', ProjectStatusUpdateView.as_view()),
 ]

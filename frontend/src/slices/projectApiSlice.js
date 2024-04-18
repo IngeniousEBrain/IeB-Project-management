@@ -15,19 +15,21 @@ export const projectApiSlice = apiSlice.injectEndpoints({
         headers: {
             Authorization: `Bearer ${Cookies.get('access_token')}`,
         },
-        formData :true,
+        formData: true,
       }),
+      invalidatesTags: [{ type: 'Projects', id: 'LIST' }, "ClientProjects"],
     }),
     editProject: builder.mutation({
-      query: ({data, id}) => ({
+      query: ({ data, id }) => ({
         url: PROJECT_URL + "edit-project/" + id + "/",
         method: "PUT",
         body: data,
         headers: {
             Authorization: `Bearer ${Cookies.get('access_token')}`,
         },
-        formData :true,
+        formData: true,
       }),
+      invalidatesTags: [{ type: 'Projects', id: 'LIST' }],
     }),
     unassignedProjects: builder.query({
       query: () => ({
@@ -37,6 +39,7 @@ export const projectApiSlice = apiSlice.injectEndpoints({
             Authorization: `Bearer ${Cookies.get('access_token')}`,
         },
       }),
+      providesTags: ["UnassignedProjects"]
     }),
     allProjects: builder.query({
       query: () => ({
@@ -46,7 +49,13 @@ export const projectApiSlice = apiSlice.injectEndpoints({
             Authorization: `Bearer ${Cookies.get('access_token')}`,
         },
       }),
-      cache: "no-cache",
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.projects.map(( id ) => ({ type: "Projects", id })),
+              { type: "Projects", id: "LIST" },
+            ]
+          : [{ type: "Projects", id: "LIST" }],
     }),
     getProjectById: builder.query({
       query: (id) => ({
@@ -85,14 +94,15 @@ export const projectApiSlice = apiSlice.injectEndpoints({
       }),
     }),
     assignProjectToAuthorities: builder.mutation({
-      query: ({project_manager, account_manager, id}) => ({
+      query: ({ project_manager, account_manager, id }) => ({
         url: PROJECT_URL + "assign-project/" + id + "/",
         method: "POST",
-        body: {project_manager, account_manager},
+        body: { project_manager, account_manager },
         headers: {
             Authorization: `Bearer ${Cookies.get('access_token')}`,
         },
       }),
+      invalidatesTags: ["UnassignedProjects"]
     }),
     getProjects: builder.query({
       query: () => ({
@@ -102,7 +112,7 @@ export const projectApiSlice = apiSlice.injectEndpoints({
             Authorization: `Bearer ${Cookies.get('access_token')}`,
         },
       }),
-      cache: "no-cache",
+      providesTags: ["AssignedProjects"]
     }),
     getClientProjects: builder.query({
       query: () => ({
@@ -112,28 +122,29 @@ export const projectApiSlice = apiSlice.injectEndpoints({
             Authorization: `Bearer ${Cookies.get('access_token')}`,
         },
       }),
-      cache: "no-cache",
+      providesTags: ["ClientProjects"]
     }),
     fileUpload: builder.mutation({
       query: ({ file, id }) => ({
         url: PROJECT_URL + "file-upload/" + id + "/",
         method: "PUT",
-        body:  file,
+        body: file,
         headers: {
            'Authorization': `Bearer ${Cookies.get('access_token')}`,
         },
-        formData :true,
+        formData: true,
       }),
     }),
     statusUpdate: builder.mutation({
       query: ({ status, id }) => ({
         url: PROJECT_URL + "update-status/" + id + "/",
         method: "PUT",
-        body:  {status},
+        body: { status },
         headers: {
            'Authorization': `Bearer ${Cookies.get('access_token')}`,
         },
       }),
+      invalidatesTags: ["ClientProjects", "AssignedProjects"]
     }),
     downloadProposal: builder.mutation({
       query: (id) => ({
@@ -144,7 +155,7 @@ export const projectApiSlice = apiSlice.injectEndpoints({
         },
         responseHandler: async (response) => await response.blob(),
         cache: "no-cache",
-      })
+      }),
     }),
     downloadDocument: builder.mutation({
       query: (id) => ({
@@ -155,7 +166,7 @@ export const projectApiSlice = apiSlice.injectEndpoints({
         },
         responseHandler: async (response) => await response.blob(),
         cache: "no-cache",
-      })
+      }),
     }),
     addComment: builder.mutation({
       query: ({ data, id }) => ({
@@ -167,19 +178,49 @@ export const projectApiSlice = apiSlice.injectEndpoints({
         },
         formData: true,
       }),
-      invalidatesTags: ['Comments'],
+      invalidatesTags: ["Comments"],
     }),
     getCommentsByProjectId: builder.query({
       query: (id) => ({
         url: PROJECT_URL + id + "/allcomments/",
         method: "GET",
         headers: {
-            Authorization: `Bearer ${Cookies.get('access_token')}`,
+          'Authorization': `Bearer ${Cookies.get("access_token")}`,
         },
       }),
-      providesTags: ['Comments']
+      providesTags: ["Comments"],
+    }),
+    projectStatusUpdate: builder.mutation({
+      query: ({ project_status, id }) => ({
+        url: PROJECT_URL + "project-status/" + id + "/",
+        method: "PUT",
+        body: { project_status },
+        headers: {
+          Authorization: `Bearer ${Cookies.get("access_token")}`,
+        },
+      }),
+      invalidatesTags: [{ type: "Projects", id: "LIST" }]
     }),
   }),
 });
 
-export const { useAddProjectMutation, useEditProjectMutation, useAllProjectsQuery, useUnassignedProjectsQuery, useGetProjectByIdQuery, useGetClientsQuery, useGetManagersQuery, useGetKeyAccountHoldersQuery, useAssignProjectToAuthoritiesMutation, useGetProjectsQuery, useGetClientProjectsQuery, useFileUploadMutation, useStatusUpdateMutation, useDownloadProposalMutation, useDownloadDocumentMutation, useAddCommentMutation, useGetCommentsByProjectIdQuery } = projectApiSlice;
+export const {
+  useAddProjectMutation,
+  useEditProjectMutation,
+  useAllProjectsQuery,
+  useUnassignedProjectsQuery,
+  useGetProjectByIdQuery,
+  useGetClientsQuery,
+  useGetManagersQuery,
+  useGetKeyAccountHoldersQuery,
+  useAssignProjectToAuthoritiesMutation,
+  useGetProjectsQuery,
+  useGetClientProjectsQuery,
+  useFileUploadMutation,
+  useStatusUpdateMutation,
+  useDownloadProposalMutation,
+  useDownloadDocumentMutation,
+  useAddCommentMutation,
+  useGetCommentsByProjectIdQuery,
+  useProjectStatusUpdateMutation,
+} = projectApiSlice;

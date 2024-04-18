@@ -16,10 +16,9 @@ class ProjectCreationView(APIView):
     parser_classes = [MultiPartParser]
     def post(self, request, format=None):
         print(request.data)
-        # print(request.FILES)
         serializer = ProjectCreationSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
-            if request.user.is_superuser:
+            if request.user.is_superuser or hasattr(request.user, 'kah'):
                 client = Client.objects.get(email = request.data['client'])
                 manager = Manager.objects.get(email = request.data['project_manager'])
                 kah = KAH.objects.get(email = request.data['account_manager'])
@@ -51,11 +50,8 @@ class ProjectEditView(APIView):
                 documents_data = request.FILES.getlist('documents')
                 for doc in documents_data:
                     document = Document.objects.create(project=project, document=doc)
-                # serializer.save()
-            # else:
-            #     project = serializer.save(client=self.request.user.client)
             return Response({'project': ProjectSerializer(project).data, 'msg':'Project edited successfully'}, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"errors" : serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class AllProjectsView(APIView):
@@ -79,7 +75,7 @@ class UnassignedProjectsView(APIView):
 class ClientsListView(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request, format=None):
-        if request.user.is_superuser:
+        if request.user.is_superuser or hasattr(request.user, 'kah'):
             clients = Client.objects.all()
             list = ClientSerializer(clients, many=True)
             return Response({'clients': list.data, 'msg':'List of clients populated successfully'}, status=status.HTTP_200_OK)
@@ -89,7 +85,7 @@ class ClientsListView(APIView):
 class ManagersListView(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request, format=None):
-        if request.user.is_superuser:
+        if request.user.is_superuser or hasattr(request.user, 'kah'):
             managers = Manager.objects.all()
             list = ManagerSerializer(managers, many=True)
             return Response({'managers': list.data, 'msg':'List of managers populated successfully'}, status=status.HTTP_200_OK)
@@ -98,7 +94,7 @@ class ManagersListView(APIView):
 class KAHListView(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request, format=None):
-        if request.user.is_superuser:
+        if request.user.is_superuser or hasattr(request.user, 'kah'):
             account_holders = KAH.objects.all()
             list = KAHSerializer(account_holders, many=True)
             return Response({'kahs': list.data, 'msg':'List of key account holders populated successfully'}, status=status.HTTP_200_OK)
@@ -198,9 +194,7 @@ class StatusUpdateView(APIView):
         user = User.objects.get(email=request.user)
         if user is not None:
             try:
-                client = user.client
-                print("Client")
-                project = Project.objects.get(project_id=id, client=client)
+                project = Project.objects.get(project_id=id)
                 project.status = request.data['status']
                 project.save()
                 return Response({"msg": "Status updated successfully"}, status=status.HTTP_200_OK)
@@ -266,4 +260,19 @@ class CommentByProjectIdView(APIView):
             return Response({'comments': comments, 'msg':'Comments accessed successfully'}, status=status.HTTP_200_OK)
         except:
             return Response({"error" : "Error in fetching comments"}, status=status.HTTP_401_UNAUTHORIZED)
-        
+
+
+class ProjectStatusUpdateView(APIView):
+    permission_classes = [IsAuthenticated]
+    def put(self, request, id, format=None):
+        user = User.objects.get(email=request.user)
+        print(request.data['project_status'])
+        if user is not None:
+            try:
+                project = Project.objects.get(project_id=id)
+                project.project_status = request.data['project_status']
+                project.save()
+                return Response({"msg": "Project Status updated successfully"}, status=status.HTTP_200_OK)
+            except:
+                return Response({"error" : "Error in updating project status. Retry!"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"error" : "User not found"}, status=status.HTTP_404_NOT_FOUND)
