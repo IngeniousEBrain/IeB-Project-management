@@ -15,3 +15,11 @@ code {
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.MyDatePicker input {
+  --tw-ring-shadow: 0 0 #000 !important;
+}
+
+.recharts-tooltip-label{
+  color: black;
+}

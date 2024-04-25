@@ -1,12 +1,15 @@
 import React, { Fragment, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { toast } from "react-toastify";
+import { useAddInvoiceMutation } from "../../slices/projectApiSlice";
 
 const InvoiceModal = ({ id, overlayOpen, closeOverlay }) => {
   const [invoiceNumber, setInvoiceNumber] = useState("");
   const [amount, setAmount] = useState("");
   const [currency, setCurrency] = useState("");
-  const [invoiceDocument, setInvoiceDocument] = useState([]);
+  const [invoiceDocument, setInvoiceDocument] = useState(null);
+
+  const [addInvoice, {isLoading}] = useAddInvoiceMutation();
 
   const submitHandler = async (e) => {
     e.preventDefault();
@@ -19,16 +22,14 @@ const InvoiceModal = ({ id, overlayOpen, closeOverlay }) => {
       formData.append("amount", amount);
       formData.append("currency", currency);
       console.log("form", formData);
-      // const res = await addProject(formData);
-      // if (res.msg) {
-        toast.success("Project assigned successfully");
+      const res = await addInvoice({data: formData, id: id}).unwrap();
+      console.log(res)
+      if (res.msg) {
+        toast.success("Invoice added successfully");
         closeOverlay();
-      // }
+      }
     } catch (err) {
       console.log(err);
-      // if (err.data.project_manager) toast.error(err.data.project_manager[0]);
-      // if (err.data.account_manager) toast.error(err.data.account_manager[0]);
-      // if (err.data.non_field_errors) toast.error(err.data.non_field_errors[0]);
     }
   };
   return (
@@ -140,7 +141,8 @@ const InvoiceModal = ({ id, overlayOpen, closeOverlay }) => {
                           type="file"
                           name="proposal"
                           id="proposal"
-                          onChange={(e) => setInvoiceDocument(e.target.files)}
+                          onChange={(e) => setInvoiceDocument(e.target.files[0])}
+                          required
                           className="block w-full rounded-md border-0 py-1.5 px-2 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                         />
                       </div>

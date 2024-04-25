@@ -2,7 +2,7 @@ from os import read
 from rest_framework import serializers
 from onboarding.models import KAH, Client, Manager
 from onboarding.serializers import ClientSerializer
-from .models import Comment, Document, Project
+from .models import Comment, Document, Invoice, Project
 
 
 class DocumentSerializer(serializers.ModelSerializer):
@@ -57,3 +57,12 @@ class CommentCreationSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         new_comment = Comment.objects.create(**validated_data)
         return new_comment
+    
+class InvoiceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Invoice
+        fields =  ['invoice_number', 'amount', 'currency', 'invoice_file']
+
+    def create(self, validated_data):
+        invoice = Invoice.objects.create(**validated_data)
+        return invoice

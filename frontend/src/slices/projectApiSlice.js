@@ -201,6 +201,40 @@ export const projectApiSlice = apiSlice.injectEndpoints({
       }),
       invalidatesTags: [{ type: "Projects", id: "LIST" }]
     }),
+    addInvoice: builder.mutation({
+      query: ({ data, id }) => ({
+        url: PROJECT_URL + "add-invoice/" + id + "/",
+        method: "POST",
+        body: data,
+        headers: {
+          'Authorization': `Bearer ${Cookies.get('access_token')}`,
+        },
+        formData: true,
+      }),
+      invalidatesTags: [{ type: "Projects", id: "LIST" }],
+    }),
+    getProposalStatusCount: builder.query({
+      query: (id) => ({
+        url: PROJECT_URL + "proposal-status-count/",
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${Cookies.get("access_token")}`,
+        },
+      }),
+      providesTags: ["ProposalStatusCount"],
+    }),
+    getfilteredResults: builder.query({
+      query: (customFilters) => {
+        const params = new URLSearchParams();
+        for (const key in customFilters) {
+          if (customFilters[key]) {
+            params.append(key, customFilters[key]);
+          }
+        }
+        return PROJECT_URL + `dashboard/?${params.toString()}`;
+      },
+      cache: "no-cache"
+    }),
   }),
 });
 
@@ -223,4 +257,7 @@ export const {
   useAddCommentMutation,
   useGetCommentsByProjectIdQuery,
   useProjectStatusUpdateMutation,
+  useAddInvoiceMutation,
+  useGetProposalStatusCountQuery,
+  useGetfilteredResultsQuery,
 } = projectApiSlice;

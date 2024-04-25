@@ -69,6 +69,7 @@ class Project(models.Model):
     status_date = models.DateField(null=True, blank=True)
     notified_project_manager = models.BooleanField(default=False)
     notified_client = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
  
     def __str__(self):
         return self.project_name
@@ -86,9 +87,18 @@ class Comment(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
 class Invoice(models.Model):
+
+    CURRENCY_CHOICES = (
+        ('usd', 'USD'),
+        ('euro', 'EURO'),
+        ('inr', 'INR')
+    )
+
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     invoice_number = models.CharField()
     amount = models.DecimalField(
         max_digits=10, decimal_places=2, null=True, blank=True)
+    currency = models.CharField(
+        max_length=10, choices=CURRENCY_CHOICES)
     invoice_file = models.FileField(upload_to='invoices/', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)

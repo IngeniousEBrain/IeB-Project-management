@@ -1,76 +1,428 @@
-import React from "react";
-import SideBar from "../../Components/AdminComponents/Sidebar";
-import { Bars4Icon, FolderIcon, HomeIcon, UsersIcon} from "@heroicons/react/24/solid";
-import { Link } from "react-router-dom";
-import AdminRegisterScreen from "./AdminRegisterScreen"
+import React, { useState } from "react";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  LabelList,
+  Legend,
+  Pie,
+  PieChart,
+  Rectangle,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
+import {
+  useGetProposalStatusCountQuery,
+  useGetfilteredResultsQuery,
+} from "../../slices/projectApiSlice";
+import Loading from "../../Components/Loading";
+import RenderActiveShape from "../../Components/RenderActiveShape";
+import { FaFilter, FaXmark } from "react-icons/fa6";
+import FiltersModal from "../../Components/AdminComponents/FiltersModal";
+import { useDispatch, useSelector } from "react-redux";
+import { clearFilters } from "../../slices/filterSlice";
 
 const AdminDashboardScreen = () => {
+  const [open, setOpen] = useState(false);
+
+  const { customFilters } = useSelector((state) => state.filters);
+
+  // const { data: stockData, isLoading } = useGetProposalStatusCountQuery();
+  const { data: filteredData, isLoading } =
+    useGetfilteredResultsQuery(customFilters);
+
+  const dispatch = useDispatch();
+
+  const ProposalStatusColor = {
+    accepted: "#22c55e",
+    rejected: "#ef4444",
+    on_hold: "#facc15",
+    pending: "#38bdf8",
+  };
+
+  const closeOverlay = () => {
+    setOpen(false);
+  };
+
+  const handleClear = () => {
+    dispatch(clearFilters());
+  };
+
+  const [activeIndex1, setActiveIndex1] = useState(0);
+  const [activeIndex2, setActiveIndex2] = useState(0);
+  const COLORS = ["#FFBB28", "#00C49F", "#FF8042", "#F9A8D4", "#0088FE"];
   return (
     <>
-      <div className="">
-        {/* <!-- Page Heading --> */}
-        <header>
-          {/* <p className="mb-2 text-sm font-semibold text-blue-600">
-            Starter Pages & Examples
-          </p>
-          <h1 className="block text-2xl font-bold text-gray-800 sm:text-3xl dark:text-white">
-            Application Layout: Sidebar using Tailwind CSS
+      {isLoading ? (
+        <Loading />
+      ) : (
+        <div className="">
+          <div className="flex flex-row-reverse">
+            <button
+              className="m-2 p-2 flex gap-2 items-center border border-gray-400 rounded-md text-gray-600 font-semibold"
+              onClick={() => setOpen(!open)}
+            >
+              <p>Filters</p>
+              <FaFilter />
+            </button>
+
+            {customFilters && (
+              <button
+                className="m-2 p-2 flex gap-2 items-center border border-gray-400 rounded-md text-gray-600 font-semibold"
+                onClick={handleClear}
+              >
+                <p>Clear Filters</p>
+                <FaXmark />
+              </button>
+            )}
+            {open && (
+              <FiltersModal overlayOpen={open} closeOverlay={closeOverlay} />
+            )}
+          </div>
+          <h1 className="p-4 text-white text-center text-2xl bg-sky-950 font-bold">
+            MIS Report
           </h1>
-          <p className="mt-2 text-lg text-gray-800 dark:text-gray-400">
-            This is a simple application layout with sidebar and header examples
-            using Tailwind CSS.
-          </p>
-          <div className="mt-5 flex flex-col items-center gap-2 sm:flex-row sm:gap-3">
-            <a
-              className="w-full sm:w-auto py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
-              href="https://github.com/htmlstreamofficial/preline/tree/main/examples/html"
-              target="_blank"
-            >
-              <svg
-                className="flex-shrink-0 size-4"
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                fill="currentColor"
-                viewBox="0 0 16 16"
-              >
-                <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z" />
-              </svg>
-              Get the source code
-            </a>
-            <a
-              className="w-full sm:w-auto py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent text-blue-600 hover:text-blue-800 disabled:opacity-50 disabled:pointer-events-none dark:text-blue-500 dark:hover:text-blue-400 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
-              href="../examples.html"
-            >
-              <svg
-                className="flex-shrink-0 size-4"
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path d="m15 18-6-6 6-6" />
-              </svg>
-              Back to examples
-            </a>
-          </div> */}
-        </header>
-      </div>
+
+          <div className="my-4 grid grid-cols-1 gap-x-6 gap-y-6 sm:grid-cols-6 text-white">
+            <div className="h-40 sm:col-span-2 p-2 bg-sky-900 border rounded-md">
+              <h3 className="text-lg">Total Proposals</h3>
+              <p className="text-5xl text-center p-4 font-bold">
+                {filteredData?.data?.total_proposals}
+              </p>
+            </div>
+
+            <div className="h-40 sm:col-span-2 p-2 bg-sky-900 border rounded-md">
+              <h3 className="text-lg">Total Projects</h3>
+              <p className="text-5xl text-center p-4 font-bold">
+                {filteredData?.data?.total_projects}
+              </p>
+            </div>
+
+            <div className="h-40 sm:col-span-2 p-2 bg-sky-900 border rounded-md">
+              <h3 className="text-lg">Total Revenue</h3>
+              <p className="text-5xl text-center p-4 font-bold">{Math.floor(filteredData?.data?.total_revenue/100000)}M+</p>
+            </div>
+
+            {filteredData?.data?.total_proposals > 0 && (
+              <>
+                <div className="h-70 sm:col-span-3 p-2 bg-sky-900 border rounded-md">
+                  <h3 className="text-lg">Proposal Status</h3>
+                  <PieChart width={450} height={300}>
+                    <Pie
+                      dataKey="count"
+                      nameKey="status"
+                      isAnimationActive={true}
+                      data={filteredData?.data?.overall_proposal_status_cnt}
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={80}
+                      fill="#8884d8"
+                    >
+                      {filteredData?.data?.overall_proposal_status_cnt.map(
+                        (entry, index) => (
+                          <Cell
+                            key={index}
+                            fill={ProposalStatusColor[entry.status]}
+                          />
+                        )
+                      )}
+                    </Pie>
+                    <Tooltip />
+                    <Legend
+                      align="right"
+                      verticalAlign="middle"
+                      layout="vertical"
+                      wrapperStyle={{ fontWeight: 500 }}
+                    />
+                  </PieChart>
+                </div>
+
+                <div className="h-70 sm:col-span-3 p-2 bg-sky-900 border rounded-md">
+                  <h3 className="text-lg">Project Status</h3>
+                  <PieChart width={450} height={300} margin={{ top: 70 }}>
+                    <Pie
+                      dataKey="count"
+                      nameKey="project_status"
+                      isAnimationActive={true}
+                      data={filteredData?.data?.overall_project_status_cnt}
+                      startAngle={180}
+                      endAngle={0}
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={80}
+                      fill="#8884d8"
+                    >
+                      {filteredData?.data?.overall_project_status_cnt.map(
+                        (entry, index) => (
+                          <Cell
+                            key={`cell-${index}`}
+                            fill={COLORS[index % COLORS.length]}
+                          />
+                        )
+                      )}
+                      <LabelList
+                        dataKey="status"
+                        position="outside"
+                        offset={20}
+                        className="font-thin"
+                      />
+                    </Pie>
+                    <Tooltip />
+                    <Legend
+                      align="right"
+                      verticalAlign="middle"
+                      layout="vertical"
+                      wrapperStyle={{ fontWeight: 500 }}
+                    />
+                  </PieChart>
+                </div>
+
+                {(customFilters == null ||
+                  customFilters?.business_unit?.length == 0) && (
+                  <>
+                    <div className="h-70 sm:col-span-3 p-2 bg-sky-900 border rounded-md">
+                      <h3 className="text-lg">
+                        Proposal Division based on Business Unit
+                      </h3>
+                      <PieChart width={450} height={300} padding={2}>
+                        <Pie
+                          activeIndex={activeIndex2}
+                          activeShape={RenderActiveShape}
+                          data={filteredData?.data?.bu_proposal_cnt}
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={40}
+                          outerRadius={60}
+                          fill="#8884d8"
+                          dataKey="proposal_count"
+                          nameKey="business_unit"
+                          onMouseEnter={(event, index) =>
+                            setActiveIndex2(index)
+                          }
+                        >
+                          {filteredData?.data?.bu_proposal_cnt.map(
+                            (entry, index) => (
+                              <Cell
+                                key={`cell-${index}`}
+                                fill={COLORS[index % COLORS.length]}
+                              />
+                            )
+                          )}
+                        </Pie>
+                        <Legend
+                          align="right"
+                          verticalAlign="middle"
+                          layout="vertical"
+                          wrapperStyle={{ fontWeight: 500 }}
+                        />
+                      </PieChart>
+                    </div>
+
+                    <div className="h-70 sm:col-span-3 p-2 bg-sky-900 border rounded-md">
+                      <h3 className="text-lg">
+                        Project Division based on Business Unit
+                      </h3>
+                      <PieChart width={450} height={300}>
+                        <Pie
+                          activeIndex={activeIndex1}
+                          activeShape={RenderActiveShape}
+                          data={filteredData?.data?.bu_project_cnt}
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={40}
+                          outerRadius={60}
+                          fill="#8884d8"
+                          dataKey="project_count"
+                          nameKey="business_unit"
+                          onMouseEnter={(event, index) =>
+                            setActiveIndex1(index)
+                          }
+                        >
+                          {filteredData?.data?.bu_project_cnt.map(
+                            (entry, index) => (
+                              <Cell
+                                key={`cell-${index}`}
+                                fill={COLORS[index % COLORS.length]}
+                              />
+                            )
+                          )}
+                        </Pie>
+                        <Legend
+                          align="right"
+                          verticalAlign="middle"
+                          layout="vertical"
+                          wrapperStyle={{ fontWeight: 500 }}
+                        />
+                      </PieChart>
+                    </div>
+                  </>
+                )}
+
+                <div className="h-70 col-span-full px-2 pb-4 bg-sky-900 border rounded-md">
+                  <h3 className="text-lg my-2">
+                    Conversion Comparison based on Business Unit
+                  </h3>
+                  <div className="flex justify-between gap-2">
+                    <BarChart
+                      width={500}
+                      height={300}
+                      data={filteredData?.data?.comparison}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis
+                        dataKey="business_unit"
+                        tick={{ fill: "#e7e5e4" }}
+                      />
+                      <YAxis
+                        tick={{ fill: "#e7e5e4" }}
+                        tickLine={{ stroke: "#e7e5e4" }}
+                      />
+                      <Tooltip />
+                      <Legend
+                        verticalAlign="top"
+                        height={36}
+                        wrapperStyle={{ fontWeight: 500 }}
+                      />
+                      <Bar
+                        dataKey="proposal_cnt"
+                        fill="#c084fc"
+                        data={filteredData?.data?.comparison?.proposal_cnt}
+                        activeBar={<Rectangle fill="pink" stroke="blue" />}
+                        maxBarSize={40}
+                      />
+                      <Bar
+                        dataKey="project_cnt"
+                        fill="#84cc16"
+                        data={filteredData?.data?.comparison?.project_cnt}
+                        activeBar={<Rectangle fill="gold" stroke="purple" />}
+                        maxBarSize={40}
+                      />
+                    </BarChart>
+
+                    <table className="table-fixed border mr-4 text-slate-100">
+                      <caption class="caption-bottom text-sm m-1">
+                        Conversion Analysis Table
+                      </caption>
+                      <thead>
+                        <tr>
+                          <th className="px-2 border border-slate-300">BU</th>
+                          <th className="px-2 border border-slate-300">
+                            Proposals
+                          </th>
+                          <th className="px-2 border border-slate-300">
+                            Projects
+                          </th>
+                          <th className="px-2 border border-slate-300">
+                            Conversion Rate
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {filteredData?.data?.comparison.map((bu, index) => (
+                          <tr key={index}>
+                            <td className="px-2 border border-slate-300 text-center">
+                              {bu.business_unit}
+                            </td>
+                            <td className="px-2 border border-slate-300 text-center">
+                              {bu.proposal_cnt}
+                            </td>
+                            <td className="px-2 border border-slate-300 text-center">
+                              {bu.project_cnt}
+                            </td>
+                            <td className="px-2 border border-slate-300 text-center">
+                              {bu.proposal_cnt > 0 ? (bu.project_cnt / bu.proposal_cnt) * 100 : 0}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <div className="h-70 col-span-full px-2 pb-4 bg-sky-900 border rounded-md">
+                  <h3 className="text-lg my-2">Revenue Comparison based on Business Unit</h3>
+                  <div className="flex justify-between gap-2">
+                    <BarChart
+                      width={600}
+                      height={300}
+                      margin={{ left: 20 }}
+                      data={filteredData?.data?.comparison}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis
+                        dataKey="business_unit"
+                        tick={{ fill: "#e7e5e4" }}
+                      />
+                      <YAxis
+                        tick={{ fill: "#e7e5e4" }}
+                        tickLine={{ stroke: "#e7e5e4" }}
+                      />
+                      <Tooltip />
+                      <Legend
+                        verticalAlign="top"
+                        height={36}
+                        wrapperStyle={{ fontWeight: 500 }}
+                      />
+                      <Bar
+                        dataKey="bu_revenue"
+                        fill="#c084fc"
+                        data={filteredData?.data?.comparison?.bu_revenue}
+                        activeBar={<Rectangle fill="pink" stroke="blue" />}
+                        maxBarSize={40}
+                      />
+                      <Bar
+                        dataKey="bu_projected_revenue"
+                        fill="#84cc16"
+                        data={
+                          filteredData?.data?.comparison?.bu_projected_revenue
+                        }
+                        activeBar={<Rectangle fill="gold" stroke="purple" />}
+                        maxBarSize={40}
+                      />
+                    </BarChart>
+
+                    <table className="table-fixed border mr-4 text-slate-100">
+                      <caption class="caption-bottom text-sm m-1">
+                        Revenue Analysis Table (in INR)
+                      </caption>
+                      <thead>
+                        <tr>
+                          <th className="px-2 border border-slate-300">BU</th>
+                          <th className="px-2 border border-slate-300">
+                            Revenue
+                          </th>
+                          <th className="px-2 border border-slate-300">
+                            Projected Revenue
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {filteredData?.data?.comparison.map((bu, index) => (
+                          <tr key={index}>
+                            <td className="px-2 border border-slate-300 text-center">
+                              {bu.business_unit}
+                            </td>
+                            <td className="px-2 border border-slate-300 text-center">
+                              {bu.bu_revenue}
+                            </td>
+                            <td className="px-2 border border-slate-300 text-center">
+                              {bu.bu_projected_revenue}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </>
   );
 };
-
-// const AdminDashboardScreen = () => {
-//     return (
-//         <div>
-//             <SideBar />
-//         </div>
-//     )
-// }
 
 export default AdminDashboardScreen;
