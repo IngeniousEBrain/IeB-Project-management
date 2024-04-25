@@ -126,7 +126,7 @@ const SideBar = () => {
                   }
               >
                 <FolderIcon className="h-5 w-5" />
-                Unassigned Projects
+                Project Allocation
               </NavLink>
             </li>
 

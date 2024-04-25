@@ -189,7 +189,7 @@ const Header = () => {
                         </Transition>
                       </Menu>
                       {!userInfo && (
-                        <Link to="/login">
+                        <Link to="/">
                           <button className="rounded-md bg-blue-600 text-white p-2">
                             Login
                           </button>

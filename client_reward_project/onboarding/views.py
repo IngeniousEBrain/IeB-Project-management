@@ -20,8 +20,7 @@ class ClientRegistrationView(APIView):
         serializer = ClientRegistrationSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             user = serializer.save()
-            token = get_tokens_for_user(user)
-            return Response({'user': serializer.data, 'token': token, 'msg':'Registration Successful'}, status=status.HTTP_201_CREATED)
+            return Response({'user': serializer.data, 'msg':'Registration Successful'}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class EmployeeRegistrationView(APIView):

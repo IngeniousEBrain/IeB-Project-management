@@ -118,7 +118,7 @@ const HomeScreen = () => {
     },
     {
       field: "status",
-      headerName: "Status",
+      headerName: "Proposal Status",
       width: 130,
       renderCell: (params) => {
         const rowStatus = params.row.status;

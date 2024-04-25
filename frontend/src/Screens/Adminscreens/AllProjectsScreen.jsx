@@ -62,7 +62,25 @@ const AllProjectsScreen = () => {
   useEffect(() => {}, [projects]);
 
   const columns = [
-    { field: "id", headerName: "ID", width: 50 },
+    // { field: "id", headerName: "ID", width: 50 },
+    {
+      field: "actions",
+      headerName: "",
+      width: 50,
+      renderCell: (params) => (
+        <div className="mt-2 flex items-center space-x-2">
+          <button
+            className="p-2 rounded-md flex items-center space-x-2"
+            onClick={() => {
+              openEdit(params.row.project_id);
+              setEditid(params.row.project_id);
+            }}
+          >
+            <FaPencil className="h-5 w-5 text-green-600" />
+          </button>
+        </div>
+      ),
+    },
     { field: "project_code", headerName: "Project Code", width: 100 },
     {
       field: "project_name",
@@ -201,33 +219,33 @@ const AllProjectsScreen = () => {
         );
       },
     },
-    {
-      field: "actions",
-      headerName: "Actions",
-      width: 100,
-      renderCell: (params) => (
-        <div className="mt-2 flex items-center space-x-2">
-          <button
-            className="p-2 rounded-md flex items-center space-x-2"
-            onClick={() => {
-              openEdit(params.row.project_id);
-              setEditid(params.row.project_id);
-            }}
-          >
-            <FaPencil className="h-5 w-5 text-green-600" />
-          </button>
-          {/* <button
-            className="p-2 rounded-md flex items-center space-x-2"
-            onClick={() => {
-              openDelete(params.row._id);
-              setDeleteid(params.row._id);
-            }}
-          >
-            <FaTrash className="text-red-500" />
-          </button> */}
-        </div>
-      ),
-    },
+    // {
+    //   field: "actions",
+    //   headerName: "Actions",
+    //   width: 100,
+    //   renderCell: (params) => (
+    //     <div className="mt-2 flex items-center space-x-2">
+    //       <button
+    //         className="p-2 rounded-md flex items-center space-x-2"
+    //         onClick={() => {
+    //           openEdit(params.row.project_id);
+    //           setEditid(params.row.project_id);
+    //         }}
+    //       >
+    //         <FaPencil className="h-5 w-5 text-green-600" />
+    //       </button>
+    //       {/* <button
+    //         className="p-2 rounded-md flex items-center space-x-2"
+    //         onClick={() => {
+    //           openDelete(params.row._id);
+    //           setDeleteid(params.row._id);
+    //         }}
+    //       >
+    //         <FaTrash className="text-red-500" />
+    //       </button> */}
+    //     </div>
+    //   ),
+    // },
   ];
 
   return (

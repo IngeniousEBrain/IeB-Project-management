@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { UserCircleIcon } from "@heroicons/react/24/solid";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
-import Select, {components} from "react-select";
+import Select, { components } from "react-select";
 import countryList from "react-select-country-list";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -31,7 +31,7 @@ const RegisterScreen = () => {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [register, {isLoading}] = useRegisterMutation();
+  const [register, { isLoading }] = useRegisterMutation();
 
   const { userInfo } = useSelector((state) => state.auth);
   const { search } = useLocation();
@@ -47,30 +47,51 @@ const RegisterScreen = () => {
   const profilePicInputRef = useRef(null);
   const handleFileInput = () => {
     profilePicInputRef.current.click();
-  }
+  };
 
   const submitHandler = async (e) => {
     e.preventDefault();
     try {
-      const address = streetAddress + ', ' + city + ', ' + state + ', ' + country.label + ', Postal Code: ' + postalCode 
-      const res = await register({ ph_number: '+'+ phoneNumber, email: email, password: password, confirm_password: confirmPassword, first_name: firstName, last_name: lastName, profile_picture: profilePic, client_code: clientCode, geographical_region: country.label, currency: currency, address: address }).unwrap();
-      dispatch(setCredentials({ ...res }));
-      navigate(redirect);
+      const address =
+        streetAddress +
+        ", " +
+        city +
+        ", " +
+        state +
+        ", " +
+        country.label +
+        ", Postal Code: " +
+        postalCode;
+      const res = await register({
+        ph_number: "+" + phoneNumber,
+        email: email,
+        password: password,
+        confirm_password: confirmPassword,
+        first_name: firstName,
+        last_name: lastName,
+        profile_picture: profilePic,
+        client_code: clientCode,
+        geographical_region: country.label,
+        currency: currency,
+        address: address,
+      }).unwrap();
+      if (res.msg) {
+        toast.success("Client Registered");
+      }
     } catch (err) {
       console.log(err);
-      if(err.data.email) toast.error(err.data.email[0])
-      if(err.data.ph_number) toast.error(err.data.ph_number[0])
-      if(err.data.non_field_errors) toast.error(err.data.non_field_errors[0]);
+      if (err.data.email) toast.error(err.data.email[0]);
+      if (err.data.ph_number) toast.error(err.data.ph_number[0]);
+      if (err.data.non_field_errors) toast.error(err.data.non_field_errors[0]);
     }
   };
 
-  const Input = props => (
-    <components.Input 
-       {...props} 
-       inputClassName="outline-none border-none shadow-none focus:ring-transparent"
+  const Input = (props) => (
+    <components.Input
+      {...props}
+      inputClassName="outline-none border-none shadow-none focus:ring-transparent"
     />
-  )
-
+  );
 
   return (
     <div className="flex min-h-full flex-1 flex-col justify-center px-6 lg:px-4">
@@ -110,7 +131,14 @@ const RegisterScreen = () => {
                   >
                     Change
                   </button>
-                  <input type="file" ref={profilePicInputRef} onChange={(e) => setProfilePic(e.target.value)} id="profile-pic" accept=".jpg, .png, .jpeg" className="hidden"/>
+                  <input
+                    type="file"
+                    ref={profilePicInputRef}
+                    onChange={(e) => setProfilePic(e.target.value)}
+                    id="profile-pic"
+                    accept=".jpg, .png, .jpeg"
+                    className="hidden"
+                  />
                 </div>
               </div>
             </div>
@@ -189,8 +217,8 @@ const RegisterScreen = () => {
                       value={phoneNumber}
                       onChange={setPhoneNumber}
                       inputProps={{
-                        name: 'phone',
-                        required: true
+                        name: "phone",
+                        required: true,
                       }}
                       inputStyle={{
                         width: "100%",
@@ -276,7 +304,7 @@ const RegisterScreen = () => {
                       options={options}
                       value={country}
                       onChange={setCountry}
-                      components={{Input}}
+                      components={{ Input }}
                       required
                     />
                   </div>
@@ -290,16 +318,20 @@ const RegisterScreen = () => {
                     Currency
                   </label>
                   <div className="mt-2">
-                    <input
-                      type="text"
-                      name="currency"
+                    <select
                       id="currency"
-                      autoComplete="currency"
+                      name="currency"
                       onChange={(e) => setCurrency(e.target.value)}
                       required
-                      className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                      contentEditable={false}
-                    />
+                      className="w-full block rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                    >
+                      <option value="" selected>
+                        Select
+                      </option>
+                      <option value="usd">USD</option>
+                      <option value="euro">EURO</option>
+                      <option value="inr">INR</option>
+                    </select>
                   </div>
                 </div>
 
