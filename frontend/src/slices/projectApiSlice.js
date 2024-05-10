@@ -65,6 +65,7 @@ export const projectApiSlice = apiSlice.injectEndpoints({
             Authorization: `Bearer ${Cookies.get('access_token')}`,
         },
       }),
+      cache: "no-cache"
     }),
     getClients: builder.query({
       query: () => ({
@@ -74,6 +75,7 @@ export const projectApiSlice = apiSlice.injectEndpoints({
             Authorization: `Bearer ${Cookies.get('access_token')}`,
         },
       }),
+      providesTags: ['AllClients']
     }),
     getManagers: builder.query({
       query: () => ({
@@ -93,6 +95,25 @@ export const projectApiSlice = apiSlice.injectEndpoints({
         },
       }),
     }),
+    getOrganizations: builder.query({
+      query: () => ({
+        url: PROJECT_URL + "allorganizations/",
+        method: "GET",
+        headers: {
+            Authorization: `Bearer ${Cookies.get('access_token')}`,
+        },
+      }),
+      providesTags: ['Organizations']
+    }),
+    getHeads: builder.query({
+      query: () => ({
+        url: PROJECT_URL + "allheads/",
+        method: "GET",
+        headers: {
+            Authorization: `Bearer ${Cookies.get('access_token')}`,
+        },
+      }),
+    }),
     assignProjectToAuthorities: builder.mutation({
       query: ({ project_manager, account_manager, id }) => ({
         url: PROJECT_URL + "assign-project/" + id + "/",
@@ -103,6 +124,17 @@ export const projectApiSlice = apiSlice.injectEndpoints({
         },
       }),
       invalidatesTags: ["UnassignedProjects"]
+    }),
+    allocateProjectToTeam: builder.mutation({
+      query: ({ data, id }) => ({
+        url: PROJECT_URL + "team-project-allocation/" + id + "/",
+        method: "POST",
+        body: data ,
+        headers: {
+            Authorization: `Bearer ${Cookies.get('access_token')}`,
+        },
+        formData: true,
+      }),
     }),
     getProjects: builder.query({
       query: () => ({
@@ -235,6 +267,35 @@ export const projectApiSlice = apiSlice.injectEndpoints({
       },
       cache: "no-cache"
     }),
+    getClientRevenue: builder.query({
+      query: (id) => ({
+        url: PROJECT_URL + "client-revenue/" + id,
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${Cookies.get("access_token")}`,
+        },
+      }),
+    }),
+    getEmployeeRevenue: builder.query({
+      query: (id) => ({
+        url: PROJECT_URL + "employee-revenue/" + id,
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${Cookies.get("access_token")}`,
+        },
+      }),
+    }),
+    setRule: builder.mutation({
+      query: ({id, data}) => ({
+        url: PROJECT_URL + "rule/" + id + "/",
+        method: "POST",
+        body: data,
+        headers: {
+          Authorization: `Bearer ${Cookies.get("access_token")}`,
+        },
+      }),
+      invalidatesTags: ["AllClients"]
+    }),
   }),
 });
 
@@ -247,7 +308,10 @@ export const {
   useGetClientsQuery,
   useGetManagersQuery,
   useGetKeyAccountHoldersQuery,
+  useGetOrganizationsQuery,
+  useGetHeadsQuery,
   useAssignProjectToAuthoritiesMutation,
+  useAllocateProjectToTeamMutation,
   useGetProjectsQuery,
   useGetClientProjectsQuery,
   useFileUploadMutation,
@@ -260,4 +324,7 @@ export const {
   useAddInvoiceMutation,
   useGetProposalStatusCountQuery,
   useGetfilteredResultsQuery,
+  useGetClientRevenueQuery,
+  useGetEmployeeRevenueQuery,
+  useSetRuleMutation,
 } = projectApiSlice;

@@ -1,5 +1,5 @@
 import { Dialog, Transition } from "@headlessui/react";
-import { Fragment, useRef, useState } from "react";
+import { Fragment, useState } from "react";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
@@ -49,7 +49,7 @@ const FiltersModal = ({ overlayOpen, closeOverlay }) => {
     console.log(filters);
     // let from = `${filters.from_date?.$M+1 }/${filters.from_date?.$D}/${filters.from_date?.$y}`;
     // let to = `${filters.to_date?.$M+1 }/${filters.to_date?.$D}/${filters.to_date?.$y}`;
-    const res = { from_date: filters.from_date?.$d.toISOString(), to_date: filters.to_date?.$d.toISOString(), business_unit: filters.business_unit }
+    const res = { from_date: filters.from_date?.$d?.toISOString(), to_date: filters.to_date?.$d?.toISOString(), business_unit: filters.business_unit }
     dispatch(setCustomFilters({ ...res}));
     closeOverlay();
   };
@@ -139,7 +139,7 @@ const FiltersModal = ({ overlayOpen, closeOverlay }) => {
                               closeOnSelect
                               minDate={minDate}
                               onChange={(e) => {
-                                setFilters((prev) => ({...prev, to_date: e.$d.toISOString()}))
+                                setFilters((prev) => ({...prev, to_date: e}))
                                 setMaxDate(e);
                               }}
                             />

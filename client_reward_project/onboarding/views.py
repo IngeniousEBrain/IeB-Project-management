@@ -4,7 +4,8 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated
-from .serializers import ClientRegistrationSerializer, ClientSerializer, KAHRegistrationSerializer, KAHSerializer, LoginSerializer, ManagerRegistrationSerializer, ManagerSerializer, SendCredentialsEmailSerializer, SendUserResetPasswordEmailSerializer, UserChangePasswordSerializer, UserResetPasswordSerializer, UserSerializer
+from .models import Client, Organization
+from .serializers import AddOrganizationSerializer, ClientRegistrationSerializer, ClientSerializer, KAHRegistrationSerializer, KAHSerializer, LoginSerializer, ManagerRegistrationSerializer, ManagerSerializer, SendCredentialsEmailSerializer, SendUserResetPasswordEmailSerializer, UserChangePasswordSerializer, UserResetPasswordSerializer, UserSerializer
 
 
 def get_tokens_for_user(user):
@@ -15,11 +16,25 @@ def get_tokens_for_user(user):
         'access': str(refresh.access_token),
     }
 
+class AddOrganizationView(APIView):
+    def post(self, request, format=None):
+        serializer = AddOrganizationSerializer(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            org = serializer.save()
+            return Response({'msg':'Organization added successfully'}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 class ClientRegistrationView(APIView):
     def post(self, request, format=None):
         serializer = ClientRegistrationSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
-            user = serializer.save()
+            organization = Organization.objects.get(org_name = request.data['organization'])
+            if request.data['sub_role'] == 'Team':
+                head = Client.objects.get(email = request.data['head'])
+            else:
+                head = None
+            user = serializer.save(organization = organization, head = head)
             return Response({'user': serializer.data, 'msg':'Registration Successful'}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -74,7 +89,6 @@ class LoginView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 class UserChangePasswordView(APIView):
-    # authentication_classes = [JWTTokenUserAuthentication]
     permission_classes = [IsAuthenticated]
     def post(self, request, format=None):
         serializer = UserChangePasswordSerializer(data=request.data, context={'user':request.user})
@@ -114,3 +128,4 @@ class SendCredentialEmailView(APIView):
         if serializer.is_valid(raise_exception=True):
             return Response({'msg':'Credentials sent successfully. Please check your email'}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    

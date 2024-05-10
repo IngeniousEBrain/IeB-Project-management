@@ -12,8 +12,9 @@ import CommentsModal from "../../Components/CommentsModal";
 import AddProjectModal from "../../Components/AdminComponents/AddProjectModal";
 import UpdateStatusModal from "../../Components/UpdateStatusModal";
 import { useSelector } from "react-redux";
+import SideBar from "../../Components/AdminComponents/Sidebar";
 
-const EmployeeHomeScreen = () => {
+const EmployeeProjectsScreen = () => {
   const [id, setId] = useState("");
   const [open, setOpen] = useState(false);
   const [openStatus, setOpenStatus] = useState(false);
@@ -80,7 +81,7 @@ const EmployeeHomeScreen = () => {
   };
 
   const columns = [
-    { field: "id", headerName: "ID", width: 70 },
+    { field: "project_code", headerName: "Code", width: 100 },
     {
       field: "project_name",
       headerName: "Project Name",
@@ -91,18 +92,18 @@ const EmployeeHomeScreen = () => {
       headerName: "Description",
       width: 150,
     },
-    {
-      field: "client",
-      headerName: "Client",
-      width: 110,
-      renderCell: (params) => {
-        return (
-          <div>
-            {params.row.client.first_name} {params.row.client.last_name}
-          </div>
-        );
-      },
-    },
+    // {
+    //   field: "client",
+    //   headerName: "Client",
+    //   width: 110,
+    //   renderCell: (params) => {
+    //     return (
+    //       <div>
+    //         {params.row.client.first_name} {params.row.client.last_name}
+    //       </div>
+    //     );
+    //   },
+    // },
     {
       field: "type_of_service",
       headerName: "Service Type",
@@ -194,102 +195,62 @@ const EmployeeHomeScreen = () => {
         );
       },
     },
-    // {
-    //   field: "actions",
-    //   headerName: "Actions",
-    //   width: 100,
-    //   renderCell: (params) => (
-    //     <div className="mt-2 flex items-center space-x-2">
-    //       <button
-    //         className="p-2 rounded-md flex items-center space-x-2"
-    //         onClick={() => {
-    //           openEdit(params.row.project_id);
-    //           setEditid(params.row.project_id);
-    //         }}
-    //       >
-    //         <FaPencil className="text-green-600" />
-    //       </button>
-    //       {/* <button
-    //         className="p-2 rounded-md flex items-center space-x-2"
-    //         onClick={() => {
-    //           openDelete(params.row._id);
-    //           setDeleteid(params.row._id);
-    //         }}
-    //       >
-    //         <FaTrash className="text-red-500" />
-    //       </button> */}
-    //     </div>
-    //   ),
-    // },
   ];
   return (
     <>
-      <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
-        <div className="sm:mx-auto sm:w-full sm:max-w-7xl">
-          <div className="flex justify-between">
-            <h1 className="text-2xl font-bold">Projects Assigned</h1>
-            {userInfo.role === "key_account_holder" && (
-              <button
-                className="p-2 bg-indigo-600 text-white font-medium rounded-md flex items-center space-x-2"
-                onClick={() => setOpen(!open)}
-              >
-                <FaPlus />
-                <span>Add Project</span>
-              </button>
-            )}
-            {open && (
-              <AddProjectModal overlayOpen={open} closeOverlay={closeOverlay} />
-            )}
-          </div>
-          <div className="mt-10">
-            {isLoading ? (
-              <Loading />
-            ) : rows.length > 0 ? (
-              <DataGrid
-                className=""
-                disableDensitySelector
-                rows={rows.map((item, index) => ({ id: index + 1, ...item }))}
-                columns={columns}
-                initialState={{
-                  pagination: {
-                    paginationModel: {
-                      pageSize: 5,
-                    },
+      <div className="sm:mx-auto sm:w-full sm:max-w-7xl">
+        <div className="mt-5 flex justify-between">
+          <h1 className="text-2xl font-bold">Projects Assigned</h1>
+          {userInfo.role === "key_account_holder" && (
+            <button
+              className="p-2 bg-indigo-600 text-white font-medium rounded-md flex items-center space-x-2"
+              onClick={() => setOpen(!open)}
+            >
+              <FaPlus />
+              <span>Add Project</span>
+            </button>
+          )}
+          {open && (
+            <AddProjectModal overlayOpen={open} closeOverlay={closeOverlay} />
+          )}
+        </div>
+        <div className="mt-5">
+          {isLoading ? (
+            <Loading />
+          ) : rows.length > 0 ? (
+            <DataGrid
+              className=""
+              disableDensitySelector
+              rows={rows.map((item, index) => ({ id: index + 1, ...item }))}
+              columns={columns}
+              initialState={{
+                pagination: {
+                  paginationModel: {
+                    pageSize: 5,
                   },
-                }}
-                slots={{ toolbar: GridToolbar }}
-                slotProps={{
-                  toolbar: {
-                    showQuickFilter: true,
-                    quickFilterProps: {
-                      debounceMs: 500,
-                    },
-                    printOptions: { disableToolbarButton: true },
-                    csvOptions: { disableToolbarButton: true },
+                },
+              }}
+              slots={{ toolbar: GridToolbar }}
+              slotProps={{
+                toolbar: {
+                  showQuickFilter: true,
+                  quickFilterProps: {
+                    debounceMs: 500,
                   },
-                }}
-                pageSizeOptions={[5]}
-                checkboxSelection
-                disableRowSelectionOnClick
-              />
-            ) : (
-              <div className="text-xl font-bold m-auto">
-                {" "}
-                No assigned projects
-              </div>
-            )}
-          </div>
+                  printOptions: { disableToolbarButton: true },
+                  csvOptions: { disableToolbarButton: true },
+                },
+              }}
+              pageSizeOptions={[50]}
+              disableRowSelectionOnClick
+            />
+          ) : (
+            <div className="text-xl font-bold m-auto">
+              No assigned projects
+            </div>
+          )}
         </div>
       </div>
-      {/* {edit ? (
-        <ProjectScreen
-          id={editid}
-          overlayOpen={edit}
-          closeOverlay={closeEdit}
-        />
-      ) : (
-        ""
-      )} */}
 
       {openStatus && (
         <UpdateStatusModal
@@ -310,4 +271,4 @@ const EmployeeHomeScreen = () => {
   );
 };
 
-export default EmployeeHomeScreen;
+export default EmployeeProjectsScreen;

@@ -7,6 +7,15 @@ const refresh_token = getRefreshToken();
 
 export const usersApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
+    addOrganization: builder.mutation({
+      query: (data) => ({
+        url: USERS_AUTH_URL + "add-organization/",
+        method: "POST",
+        body: data,
+      }),
+      keepUnusedDataFor: 5,
+      invalidatesTags: ['Organizations']
+    }),
     register: builder.mutation({
       query: (data) => ({
         url: USERS_AUTH_URL + "register/",
@@ -85,4 +94,4 @@ export const usersApiSlice = apiSlice.injectEndpoints({
   }),
 });
 
-export const { useRegisterMutation, useAdminRegistrationsMutation, useLoginMutation, useRefreshAccessTokenQuery, useChangePasswordMutation, useSendCredentialEmailMutation, useSendEmailMutation, useResetPasswordMutation, useLogoutMutation } = usersApiSlice;
+export const { useAddOrganizationMutation, useRegisterMutation, useAdminRegistrationsMutation, useLoginMutation, useRefreshAccessTokenQuery, useChangePasswordMutation, useSendCredentialEmailMutation, useSendEmailMutation, useResetPasswordMutation, useLogoutMutation } = usersApiSlice;

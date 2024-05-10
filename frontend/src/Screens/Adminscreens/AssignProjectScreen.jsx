@@ -34,18 +34,6 @@ const AssignProjectScreen = () => {
       width: 150,
     },
     {
-      field: "client",
-      headerName: "Client",
-      width: 110,
-      renderCell: (params) => {
-        return (
-          <div>
-            {params.row.client.first_name} {params.row.client.last_name}
-          </div>
-        );
-      },
-    },
-    {
       field: "type_of_service",
       headerName: "Service Type",
       width: 110,

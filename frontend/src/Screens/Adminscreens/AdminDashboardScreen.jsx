@@ -6,6 +6,8 @@ import {
   Cell,
   LabelList,
   Legend,
+  Line,
+  LineChart,
   Pie,
   PieChart,
   Rectangle,
@@ -101,8 +103,10 @@ const AdminDashboardScreen = () => {
             </div>
 
             <div className="h-40 sm:col-span-2 p-2 bg-sky-900 border rounded-md">
-              <h3 className="text-lg">Total Revenue</h3>
-              <p className="text-5xl text-center p-4 font-bold">{Math.floor(filteredData?.data?.total_revenue/100000)}M+</p>
+              <h3 className="text-lg">Total Revenue (in INR)</h3>
+              <p className="text-5xl text-center p-4 font-bold">
+                {filteredData?.data?.total_revenue}
+              </p>
             </div>
 
             {filteredData?.data?.total_proposals > 0 && (
@@ -332,7 +336,9 @@ const AdminDashboardScreen = () => {
                               {bu.project_cnt}
                             </td>
                             <td className="px-2 border border-slate-300 text-center">
-                              {bu.proposal_cnt > 0 ? (bu.project_cnt / bu.proposal_cnt) * 100 : 0}
+                              {bu.proposal_cnt > 0
+                                ? ((bu.project_cnt / bu.proposal_cnt) * 100).toFixed(2)
+                                : 0}
                             </td>
                           </tr>
                         ))}
@@ -342,7 +348,9 @@ const AdminDashboardScreen = () => {
                 </div>
 
                 <div className="h-70 col-span-full px-2 pb-4 bg-sky-900 border rounded-md">
-                  <h3 className="text-lg my-2">Revenue Comparison based on Business Unit</h3>
+                  <h3 className="text-lg my-2">
+                    Revenue Comparison based on Business Unit
+                  </h3>
                   <div className="flex justify-between gap-2">
                     <BarChart
                       width={600}
@@ -414,6 +422,201 @@ const AdminDashboardScreen = () => {
                         ))}
                       </tbody>
                     </table>
+                  </div>
+                </div>
+
+                <div className="h-70 col-span-full px-2 pb-4 bg-sky-900 border rounded-md">
+                  <h3 className="text-lg my-2">Yearly Revenue</h3>
+                  <div className="flex justify-between gap-2">
+                    <LineChart
+                      width={1000}
+                      height={300}
+                      data={filteredData?.data?.yearly_revenue}
+                      margin={{
+                        top: 5,
+                        right: 30,
+                        left: 20,
+                        bottom: 5,
+                      }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis
+                        dataKey="month"
+                        tick={{ fill: "#e7e5e4" }}
+                      />
+                      <YAxis
+                        tick={{ fill: "#e7e5e4" }}
+                        tickLine={{ stroke: "#e7e5e4" }}
+                      />
+                      <Tooltip />
+                      <Legend
+                        verticalAlign="top"
+                        height={36}
+                        wrapperStyle={{ fontWeight: 500 }}
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="revenue"
+                        stroke="#e879f9"
+                        activeDot={{ r: 8 }}
+                      />
+                    </LineChart>
+                  </div>
+                </div>
+
+                <div className="h-70 col-span-3 px-2 pb-4 bg-sky-900 border rounded-md">
+                  <h3 className="text-lg my-2">First Quarter Revenue</h3>
+                  <div className="flex justify-between gap-2">
+                    <LineChart
+                      width={500}
+                      height={300}
+                      data={filteredData?.data?.q1}
+                      margin={{
+                        top: 5,
+                        right: 30,
+                        left: 20,
+                        bottom: 5,
+                      }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis
+                        dataKey="month"
+                        tick={{ fill: "#e7e5e4" }}
+                      />
+                      <YAxis
+                        tick={{ fill: "#e7e5e4" }}
+                        tickLine={{ stroke: "#e7e5e4" }}
+                      />
+                      <Tooltip />
+                      <Legend
+                        verticalAlign="top"
+                        height={36}
+                        wrapperStyle={{ fontWeight: 500 }}
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="revenue"
+                        stroke="#c084fc"
+                        activeDot={{ r: 8 }}
+                      />
+                    </LineChart>
+                  </div>
+                </div>
+
+                <div className="h-70 col-span-3 px-2 pb-4 bg-sky-900 border rounded-md">
+                  <h3 className="text-lg my-2">Second Quarter Revenue</h3>
+                  <div className="flex justify-between gap-2">
+                    <LineChart
+                      width={500}
+                      height={300}
+                      data={filteredData?.data?.q2}
+                      margin={{
+                        top: 5,
+                        right: 30,
+                        left: 20,
+                        bottom: 5,
+                      }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis
+                        dataKey="month"
+                        tick={{ fill: "#e7e5e4" }}
+                      />
+                      <YAxis
+                        tick={{ fill: "#e7e5e4" }}
+                        tickLine={{ stroke: "#e7e5e4" }}
+                      />
+                      <Tooltip />
+                      <Legend
+                        verticalAlign="top"
+                        height={36}
+                        wrapperStyle={{ fontWeight: 500 }}
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="revenue"
+                        stroke="#c084fc"
+                        activeDot={{ r: 8 }}
+                      />
+                    </LineChart>
+                  </div>
+                </div>
+
+                <div className="h-70 col-span-3 px-2 pb-4 bg-sky-900 border rounded-md">
+                  <h3 className="text-lg my-2">Third Quarter Revenue</h3>
+                  <div className="flex justify-between gap-2">
+                    <LineChart
+                      width={500}
+                      height={300}
+                      data={filteredData?.data?.q3}
+                      margin={{
+                        top: 5,
+                        right: 30,
+                        left: 20,
+                        bottom: 5,
+                      }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis
+                        dataKey="month"
+                        tick={{ fill: "#e7e5e4" }}
+                      />
+                      <YAxis
+                        tick={{ fill: "#e7e5e4" }}
+                        tickLine={{ stroke: "#e7e5e4" }}
+                      />
+                      <Tooltip />
+                      <Legend
+                        verticalAlign="top"
+                        height={36}
+                        wrapperStyle={{ fontWeight: 500 }}
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="revenue"
+                        stroke="#c084fc"
+                        activeDot={{ r: 8 }}
+                      />
+                    </LineChart>
+                  </div>
+                </div>
+
+                <div className="h-70 col-span-3 px-2 pb-4 bg-sky-900 border rounded-md">
+                  <h3 className="text-lg my-2">Fourth Quarter Revenue</h3>
+                  <div className="flex justify-between gap-2">
+                    <LineChart
+                      width={500}
+                      height={300}
+                      data={filteredData?.data?.q4}
+                      margin={{
+                        top: 5,
+                        right: 30,
+                        left: 20,
+                        bottom: 5,
+                      }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis
+                        dataKey="month"
+                        tick={{ fill: "#e7e5e4" }}
+                      />
+                      <YAxis
+                        tick={{ fill: "#e7e5e4" }}
+                        tickLine={{ stroke: "#e7e5e4" }}
+                      />
+                      <Tooltip />
+                      <Legend
+                        verticalAlign="top"
+                        height={36}
+                        wrapperStyle={{ fontWeight: 500 }}
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="revenue"
+                        stroke="#c084fc"
+                        activeDot={{ r: 8 }}
+                      />
+                    </LineChart>
                   </div>
                 </div>
               </>

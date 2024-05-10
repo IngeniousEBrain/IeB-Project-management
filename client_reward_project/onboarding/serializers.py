@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .utils import Util
-from .models import KAH, Manager, User, Client
+from .models import KAH, Manager, Organization, User, Client
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.utils.encoding import smart_str, force_bytes, DjangoUnicodeDecodeError
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
@@ -13,8 +13,9 @@ class UserSerializer(serializers.ModelSerializer):
 class ClientSerializer(serializers.ModelSerializer):
     class Meta:
         model = Client
-        fields =  ['role', 'client_code', 'geographical_region', 'currency', 'address', 'ph_number', 'email', 'first_name', 'last_name', 'profile_picture', 'is_staff']
-
+        fields =  ['role', 'sub_role', 'organization', 'client_code', 'geographical_region', 'currency', 'address', 'ph_number', 'email', 'first_name', 'last_name', 'profile_picture', 'is_staff', 'yearly_amount', 'quarterly_amount', 'yearly_discount', 'quarterly_discount', 'cashback_currency']
+        depth = 1
+        
 class ManagerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Manager
@@ -25,11 +26,24 @@ class KAHSerializer(serializers.ModelSerializer):
         model = KAH
         fields =  ['role', 'email', 'employee_id', 'is_staff']
 
+class OrganizationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Organization
+        fields =  "__all__"
+
+class AddOrganizationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Organization
+        fields =  "__all__"
+
+    def create(self, validated_data):
+        return Organization.objects.create(**validated_data)
+
 class ClientRegistrationSerializer(serializers.ModelSerializer):
     confirm_password = serializers.CharField(style={'input_type':'password'}, write_only=True)
     class Meta:
         model = Client
-        fields =  ['role', 'ph_number', 'email', 'password', 'confirm_password', 'first_name', 'last_name', 'profile_picture', 'client_code', 'geographical_region', 'currency', 'address']
+        fields =  ['role', 'sub_role', 'ph_number', 'email', 'password', 'confirm_password', 'first_name', 'last_name', 'profile_picture', 'client_code', 'geographical_region', 'currency', 'address']
         extra_kwargs= {
             'password':{'write_only':True}
         }

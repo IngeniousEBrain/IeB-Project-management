@@ -1,19 +1,17 @@
-import { Link, useNavigate } from "react-router-dom";
 import React, { useEffect, useState } from "react";
-import Box from "@mui/material/Box";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { FaDownload, FaEye, FaPencil, FaTrash } from "react-icons/fa6";
 import {
   useDownloadProposalMutation,
   useGetClientProjectsQuery,
-  useStatusUpdateMutation,
 } from "../slices/projectApiSlice";
 import Loading from "../Components/Loading";
 import { toast } from "react-toastify";
 import UpdateStatusModal from "../Components/UpdateStatusModal";
 import CommentsModal from "../Components/CommentsModal";
+import dayjs from "dayjs";
 
-const HomeScreen = () => {
+const ClientProjectsScreen = () => {
   const [id, setId] = useState("");
   const [commentId, setCommentId] = useState("");
   const [projectStatus, setProjectStatus] = useState("");
@@ -71,6 +69,7 @@ const HomeScreen = () => {
       field: "project_manager",
       headerName: "Manager",
       width: 210,
+      valueFormatter: (value) => `${value?.email}`,
       renderCell: (params) => {
         return <div>{params.row.project_manager?.email}</div>;
       },
@@ -79,6 +78,7 @@ const HomeScreen = () => {
       field: "account_manager",
       headerName: "Key Account Holder",
       width: 210,
+      valueFormatter: (value) => `${value?.email}`,
       renderCell: (params) => {
         return <div>{params.row.account_manager?.email}</div>;
       },
@@ -93,6 +93,17 @@ const HomeScreen = () => {
       field: "project_cost",
       headerName: "Cost",
       width: 100,
+    },
+    {
+      field: "currency",
+      headerName: "Currency",
+      width: 100,
+      valueFormatter: (value) => `${value.toUpperCase()}`,
+      renderCell: (params) => {
+        return (
+          <p>{params.row.currency.toUpperCase()}</p>
+        )
+      }
     },
     {
       field: "proposal_document",
@@ -152,6 +163,19 @@ const HomeScreen = () => {
       },
     },
     {
+      field: "created_at",
+      headerName: "Date",
+      width: 100,
+      type: "date",
+      valueGetter: (params) => {
+        return new Date(params);
+      },
+      valueFormatter: (value) => `${dayjs(value).format('DD/MM/YYYY')}`
+      // filterOperators: {
+      //     filterType: 'between',
+      // }
+    },
+    {
       field: "comments",
       headerName: "Comments",
       width: 100,
@@ -168,15 +192,6 @@ const HomeScreen = () => {
             >
               <FaEye className="h-5 w-5 text-gray-500 hover:text-gray-900" />
             </button>
-
-            {/* <button
-              onClick={() => {
-                openStatusModal();
-                setId(params.row.project_id);
-              }}
-            >
-              <FaPencil className="h-5 w-5 text-green-600 hover:text-green-500" />
-            </button> */}
           </div>
         );
       },
@@ -184,88 +199,73 @@ const HomeScreen = () => {
   ];
 
   return (
-    <div className="bg-white">
-      <main className="mx-auto max-w-8xl px-4 sm:px-6 lg:px-8">
-        <div className="flex items-baseline justify-between border-b-2 border-gray-200 pb-4 pt-6">
-          {/* <div className="flex justify-between"> */}
-          <h1 className="text-3xl font-bold font-sans tracking-normal text-gray-900 pb-2">
-            Dashboard
-          </h1>
-          <Link to="/create-project">
-            <button className="p-2 rounded-md font-medium bg-indigo-600 text-white">
-              Request for Proposal
-            </button>
-          </Link>
-          {/* </div> */}
-        </div>
-        <div className="mt-10">
-          <h1 className="text-2xl font-bold">My Projects</h1>
-          <div className="mt-10">
-            {isLoading ? (
-              <Loading />
-            ) : rows?.length > 0 ? (
-              <DataGrid
-                className=""
-                disableDensitySelector
-                showCellVerticalBorder
-                showColumnVerticalBorder
-                rows={rows.map((item, index) => ({ id: index + 1, ...item }))}
-                columns={columns}
-                initialState={{
-                  pagination: {
-                    paginationModel: {
-                      pageSize: 5,
-                    },
+    <>
+      <div className="mt-5">
+        <h1 className="text-2xl font-bold">My Projects</h1>
+        <div className="mt-5">
+          {isLoading ? (
+            <Loading />
+          ) : rows?.length > 0 ? (
+            <DataGrid
+              className=""
+              disableDensitySelector
+              showCellVerticalBorder
+              showColumnVerticalBorder
+              rows={rows.map((item, index) => ({ id: index + 1, ...item }))}
+              columns={columns}
+              initialState={{
+                pagination: {
+                  paginationModel: {
+                    pageSize: 50,
                   },
-                }}
-                // getRowHeight={() => 'auto'}
-                autosizeOptions={{
-                  columns: ["project_name", "project_manager", "project_code"],
-                  includeOutliers: true,
-                  includeHeaders: true,
-                }}
-                slots={{ toolbar: GridToolbar }}
-                slotProps={{
-                  toolbar: {
-                    showQuickFilter: true,
-                    quickFilterProps: {
-                      debounceMs: 500,
-                    },
-                    printOptions: { disableToolbarButton: true },
-                    csvOptions: { disableToolbarButton: true },
+                },
+              }}
+              // autosizeOptions={{
+              //   columns: ["project_name", "project_manager", "project_code"],
+              //   includeOutliers: true,
+              //   includeHeaders: true,
+              // }}
+              slots={{ toolbar: GridToolbar }}
+              slotProps={{
+                toolbar: {
+                  showQuickFilter: true,
+                  quickFilterProps: {
+                    debounceMs: 500,
                   },
-                }}
-                pageSizeOptions={[5]}
-                disableRowSelectionOnClick
-              />
-            ) : (
-              <div className="text-xl font-bold m-auto">No projects</div>
-            )}
-          </div>
+                  printOptions: { disableToolbarButton: true },
+                  csvOptions: { fileName: "IeB_Projects.csv" },
+                },
+              }}
+              pageSizeOptions={[50]}
+              disableRowSelectionOnClick
+            />
+          ) : (
+            <div className="text-xl font-bold m-auto">No projects</div>
+          )}
         </div>
+      </div>
 
-        {openStatus ? (
-          <UpdateStatusModal
-            id={id}
-            overlayOpen={openStatusModal}
-            closeOverlay={closeStatusModal}
-          />
-        ) : (
-          ""
-        )}
+      {openStatus ? (
+        <UpdateStatusModal
+          id={id}
+          overlayOpen={openStatusModal}
+          closeOverlay={closeStatusModal}
+        />
+      ) : (
+        ""
+      )}
 
-        {openComment ? (
-          <CommentsModal
-            id={commentId}
-            overlayOpen={openCommentModal}
-            closeOverlay={closeCommentModal}
-          />
-        ) : (
-          ""
-        )}
-      </main>
-    </div>
+      {openComment ? (
+        <CommentsModal
+          id={commentId}
+          overlayOpen={openCommentModal}
+          closeOverlay={closeCommentModal}
+        />
+      ) : (
+        ""
+      )}
+    </>
   );
 };
 
-export default HomeScreen;
+export default ClientProjectsScreen;

@@ -7,12 +7,18 @@ import countryList from "react-select-country-list";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useRegisterMutation } from "../slices/usersApiSlice";
-import { setCredentials } from "../slices/authSlice";
 import Loading from "../Components/Loading";
 import { toast } from "react-toastify";
+import {
+  useGetHeadsQuery,
+  useGetOrganizationsQuery,
+} from "../slices/projectApiSlice";
 
 const RegisterScreen = () => {
   const [profilePic, setProfilePic] = useState();
+  const [organization, setOrganization] = useState(null);
+  const [subRole, setSubRole] = useState(null);
+  const [head, setHead] = useState(null);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -28,6 +34,10 @@ const RegisterScreen = () => {
   const [postalCode, setPostalCode] = useState("");
 
   const options = useMemo(() => countryList().getData(), []);
+  const { data: orgs, isLoading: OrgsList } = useGetOrganizationsQuery();
+  const { data: heads, isLoading: HeadsList } = useGetHeadsQuery();
+
+  const headList = heads?.heads.filter((head) => head.organization.org_name === organization);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -64,6 +74,9 @@ const RegisterScreen = () => {
         postalCode;
       const res = await register({
         ph_number: "+" + phoneNumber,
+        sub_role: subRole,
+        organization: organization,
+        head: (subRole === 'Team' && head),
         email: email,
         password: password,
         confirm_password: confirmPassword,
@@ -146,6 +159,89 @@ const RegisterScreen = () => {
             <div className="border-b border-gray-900/10 pb-12">
               <div className="mt-4 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
                 <div className="sm:col-span-3">
+                  <label
+                    htmlFor="org"
+                    className="block text-sm font-medium leading-6 text-gray-900"
+                  >
+                    Organization name
+                  </label>
+                  <div className="mt-2">
+                    <select
+                      name="head"
+                      id="head"
+                      autoComplete="head"
+                      onChange={(e) => setOrganization(e.target.value)}
+                      required
+                      className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                    >
+                      <option value="" selected>
+                        Select
+                      </option>
+                      {orgs?.orgs.map((org, index) => (
+                        <option key={index} value={org.org_name}>
+                          {org.org_name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div className="sm:col-span-3">
+                  <label
+                    htmlFor="sub-role"
+                    className="block text-sm font-medium leading-6 text-gray-900"
+                  >
+                    Role
+                  </label>
+                  <div className="mt-2">
+                    <select
+                      name="sub-role"
+                      id="sub-role"
+                      autoComplete="sub-role"
+                      onChange={(e) => setSubRole(e.target.value)}
+                      required
+                      className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                    >
+                      <option value="" selected>
+                        Select
+                      </option>
+                      <option value="Head">Head</option>
+                      <option value="Team">Team Member</option>
+                    </select>
+                  </div>
+                </div>
+
+                {subRole === "Team" && (
+                  <div className="sm:col-span-3">
+                    <label
+                      htmlFor="head"
+                      className="block text-sm font-medium leading-6 text-gray-900"
+                    >
+                      Select Head
+                    </label>
+                    <div className="mt-2">
+                      <select
+                        name="head"
+                        id="head"
+                        autoComplete="head"
+                        onChange={(e) => setHead(e.target.value)}
+                        required
+                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                      >
+                        <option value="" selected>
+                          Select
+                        </option>
+                        {headList.map((head, index) => (
+                          <option key={index} value={head.email}>
+                            {head.email}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                )}
+
+                <div className="sm:col-span-3 sm:col-start-1">
                   <label
                     htmlFor="first-name"
                     className="block text-sm font-medium leading-6 text-gray-900"

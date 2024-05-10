@@ -25,6 +25,8 @@ const AddProjectModal = ({ overlayOpen, closeOverlay }) => {
   const [selectedManager, setSelectedManager] = useState(null);
   const [selectedAccountHolder, setSelectedAccountHolder] = useState(null);
 
+  console.log(selectedClient)
+
   const InputRef = useRef(null);
   const handleFileInput = () => {
     InputRef.current.click();
@@ -89,7 +91,9 @@ const AddProjectModal = ({ overlayOpen, closeOverlay }) => {
       if(proposalDocument != null) {
         formData.append("proposal_upload_file", proposalDocument);
       }
-      formData.append("client", selectedClient.value);
+      for (let i = 0; i < selectedClient.length; i++) {
+        formData.append("client", selectedClient[i].value);
+      }
       formData.append("project_manager", selectedManager.value);
       formData.append("account_manager", selectedAccountHolder.value);
       formData.append("project_cost", cost);
@@ -99,7 +103,7 @@ const AddProjectModal = ({ overlayOpen, closeOverlay }) => {
       formData.append("status", status);
       console.log("form", formData);
       const res = await addProject(formData);
-      if (res.msg) {
+      if (res.data.msg) {
         toast.success("Project assigned successfully");
         closeOverlay();
       }
@@ -229,6 +233,8 @@ const AddProjectModal = ({ overlayOpen, closeOverlay }) => {
                           name="client"
                           options={clientOptions}
                           value={selectedClient}
+                          isMulti
+                          closeMenuOnSelect={false}
                           onChange={setSelectedClient}
                           components={{ Input }}
                           required

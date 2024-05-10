@@ -2,13 +2,17 @@ import {
   Bars4Icon,
   FolderIcon,
   HomeIcon,
+  ReceiptPercentIcon,
   UsersIcon,
 } from "@heroicons/react/24/solid";
 import React from "react";
+import { FaBuilding } from "react-icons/fa6";
+import { useSelector } from "react-redux";
 
 import { NavLink } from "react-router-dom";
 
 const SideBar = () => {
+  const { userInfo } = useSelector((state) => state.auth);
   return (
     <>
       <div className="sticky top-0 inset-x-0 z-20 bg-white border-y px-4 sm:px-6 md:px-8 lg:hidden dark:bg-gray-800 dark:border-gray-700">
@@ -18,7 +22,7 @@ const SideBar = () => {
             type="button"
             className="text-gray-500 hover:text-gray-600"
             data-hs-overlay="#application-sidebar"
-            aria-controls="application-sidebar"
+            aria-controls="#application-sidebar"
             aria-label="Toggle navigation"
           >
             <span className="sr-only">Toggle Navigation</span>
@@ -27,7 +31,7 @@ const SideBar = () => {
           {/* <!-- End Navigation Toggle --> */}
 
           {/* <!-- Breadcrumb --> */}
-          <ol
+          {/* <ol
             className="ms-3 flex items-center whitespace-nowrap"
             aria-label="Breadcrumb"
           >
@@ -55,7 +59,7 @@ const SideBar = () => {
             >
               Dashboard
             </li>
-          </ol>
+          </ol> */}
           {/* <!-- End Breadcrumb --> */}
         </div>
       </div>
@@ -64,7 +68,7 @@ const SideBar = () => {
   <!-- Sidebar --> */}
       <div
         id="application-sidebar"
-        className="hs-overlay hs-overlay-open:translate-x-0 -translate-x-full transition-all duration-300 transform hidden fixed top-0 start-0 bottom-0 z-[60] w-64 bg-white border-e border-gray-200 pt-7 pb-10 overflow-y-auto lg:block lg:translate-x-0 lg:end-auto lg:bottom-0 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300 dark:[&::-webkit-scrollbar-track]:bg-slate-700 dark:[&::-webkit-scrollbar-thumb]:bg-slate-500 dark:bg-gray-800 dark:border-gray-700"
+        className="hs-overlay hs-overlay-open:translate-x-0 -translate-x-full transition-all duration-300 transform hidden fixed top-0 start-0 bottom-0 z-20 w-64 bg-white border-e border-gray-200 pt-7 pb-10 overflow-y-auto lg:block lg:translate-x-0 lg:end-auto lg:bottom-0 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300 dark:[&::-webkit-scrollbar-track]:bg-slate-700 dark:[&::-webkit-scrollbar-thumb]:bg-slate-500 dark:bg-gray-800 dark:border-gray-700"
       >
         <div className="px-6">
           <a
@@ -72,7 +76,8 @@ const SideBar = () => {
             href="#"
             aria-label="Brand"
           >
-            Admin
+            IeB{" "}
+            {userInfo.is_staff ? <span>Admin</span> : <span>Management</span>}
           </a>
         </div>
 
@@ -80,70 +85,219 @@ const SideBar = () => {
           className="hs-accordion-group p-6 w-full flex flex-col flex-wrap"
           data-hs-accordion-always-open
         >
-          <ul className="space-y-1.5">
+          {userInfo.is_staff && (
+            <ul className="space-y-1.5">
               <li>
-              <NavLink
-                end
-                className={
-                  ({ isActive }) => ( isActive ? "bg-gray-100 flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-slate-700 rounded-lg hover:bg-gray-100 dark:bg-gray-900 dark:text-white dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600" : "flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-slate-700 rounded-lg hover:bg-gray-100 dark:bg-gray-900 dark:text-white dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600")
-                }
-                to="/admin"
-              >
-                <HomeIcon className="h-5 w-5 " />
-                Dashboard
-              </NavLink>
-            </li>
-
-            <li>
-              <NavLink
-                to="/admin/register"
-                className={
-                    ({ isActive }) => ( isActive ? "bg-gray-100 flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-slate-700 rounded-lg hover:bg-gray-100 dark:bg-gray-900 dark:text-white dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600" : "flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-slate-700 rounded-lg hover:bg-gray-100 dark:bg-gray-900 dark:text-white dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600")
+                <NavLink
+                  end
+                  className={({ isActive }) =>
+                    isActive
+                      ? "bg-gray-100 flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-slate-700 rounded-lg hover:bg-gray-100 dark:bg-gray-900 dark:text-white dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
+                      : "flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-slate-700 rounded-lg hover:bg-gray-100 dark:bg-gray-900 dark:text-white dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
                   }
-              >
-                <UsersIcon className="h-5 w-5" />
-                Add Employees
-              </NavLink>
-            </li>
+                  to="/admin"
+                >
+                  <HomeIcon className="h-5 w-5 " />
+                  Dashboard
+                </NavLink>
+              </li>
 
-            <li>
-            <NavLink
-                to="/admin/client-register"
-                className={
-                    ({ isActive }) => ( isActive ? "bg-gray-100 flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-slate-700 rounded-lg hover:bg-gray-100 dark:bg-gray-900 dark:text-white dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600" : "flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-slate-700 rounded-lg hover:bg-gray-100 dark:bg-gray-900 dark:text-white dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600")
+              <li>
+                <NavLink
+                  to="/admin/allorganizations"
+                  className={({ isActive }) =>
+                    isActive
+                      ? "bg-gray-100 flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-slate-700 rounded-lg hover:bg-gray-100 dark:bg-gray-900 dark:text-white dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
+                      : "flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-slate-700 rounded-lg hover:bg-gray-100 dark:bg-gray-900 dark:text-white dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
                   }
-              >
-                <UsersIcon className="h-5 w-5" />
-                Add Client
-              </NavLink>
-            </li>
+                >
+                  <FaBuilding className="h-5 w-5" />
+                  All Organizations
+                </NavLink>
+              </li>
 
-            <li className="hs-accordion" id="account-accordion">
-              <NavLink
-                to="/admin/assign"
-                className={
-                    ({ isActive }) => ( isActive ? "bg-gray-100 flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-slate-700 rounded-lg hover:bg-gray-100 dark:bg-gray-900 dark:text-white dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600" : "flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-slate-700 rounded-lg hover:bg-gray-100 dark:bg-gray-900 dark:text-white dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600")
+              <li>
+                <NavLink
+                  to="/admin/register"
+                  className={({ isActive }) =>
+                    isActive
+                      ? "bg-gray-100 flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-slate-700 rounded-lg hover:bg-gray-100 dark:bg-gray-900 dark:text-white dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
+                      : "flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-slate-700 rounded-lg hover:bg-gray-100 dark:bg-gray-900 dark:text-white dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
                   }
-              >
-                <FolderIcon className="h-5 w-5" />
-                Project Allocation
-              </NavLink>
-            </li>
+                >
+                  <UsersIcon className="h-5 w-5" />
+                  Add Employees
+                </NavLink>
+              </li>
 
-            <li className="hs-accordion" id="account-accordion">
-              <NavLink
-                to="/admin/allprojects"
-                className={
-                    ({ isActive }) => ( isActive ? "bg-gray-100 flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-slate-700 rounded-lg hover:bg-gray-100 dark:bg-gray-900 dark:text-white dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600" : "flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-slate-700 rounded-lg hover:bg-gray-100 dark:bg-gray-900 dark:text-white dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600")
+              <li>
+                <NavLink
+                  to="/admin/client-register"
+                  className={({ isActive }) =>
+                    isActive
+                      ? "bg-gray-100 flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-slate-700 rounded-lg hover:bg-gray-100 dark:bg-gray-900 dark:text-white dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
+                      : "flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-slate-700 rounded-lg hover:bg-gray-100 dark:bg-gray-900 dark:text-white dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
                   }
-              >
-                <FolderIcon className="h-5 w-5" />
-                All Projects
-              </NavLink>
-            </li>
+                >
+                  <UsersIcon className="h-5 w-5" />
+                  Add Client
+                </NavLink>
+              </li>
 
-            
-          </ul>
+              <li className="hs-accordion" id="account-accordion">
+                <NavLink
+                  to="/admin/assign"
+                  className={({ isActive }) =>
+                    isActive
+                      ? "bg-gray-100 flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-slate-700 rounded-lg hover:bg-gray-100 dark:bg-gray-900 dark:text-white dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
+                      : "flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-slate-700 rounded-lg hover:bg-gray-100 dark:bg-gray-900 dark:text-white dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
+                  }
+                >
+                  <FolderIcon className="h-5 w-5" />
+                  Project Allocation
+                </NavLink>
+              </li>
+
+              <li className="hs-accordion" id="account-accordion">
+                <NavLink
+                  to="/admin/allprojects"
+                  className={({ isActive }) =>
+                    isActive
+                      ? "bg-gray-100 flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-slate-700 rounded-lg hover:bg-gray-100 dark:bg-gray-900 dark:text-white dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
+                      : "flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-slate-700 rounded-lg hover:bg-gray-100 dark:bg-gray-900 dark:text-white dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
+                  }
+                >
+                  <FolderIcon className="h-5 w-5" />
+                  All Projects
+                </NavLink>
+              </li>
+
+              <li className="hs-accordion" id="account-accordion">
+                <NavLink
+                  to="/admin/allclients"
+                  className={({ isActive }) =>
+                    isActive
+                      ? "bg-gray-100 flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-slate-700 rounded-lg hover:bg-gray-100 dark:bg-gray-900 dark:text-white dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
+                      : "flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-slate-700 rounded-lg hover:bg-gray-100 dark:bg-gray-900 dark:text-white dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
+                  }
+                >
+                  <UsersIcon className="h-5 w-5" />
+                  All Clients
+                </NavLink>
+              </li>
+            </ul>
+          )}
+
+          {userInfo.role === "client" && (
+            <ul className="space-y-1.5">
+              <li>
+                <NavLink
+                  end
+                  className={({ isActive }) =>
+                    isActive
+                      ? "bg-gray-100 flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-slate-700 rounded-lg hover:bg-gray-100 dark:bg-gray-900 dark:text-white dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
+                      : "flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-slate-700 rounded-lg hover:bg-gray-100 dark:bg-gray-900 dark:text-white dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
+                  }
+                  to="/client"
+                >
+                  <HomeIcon className="h-5 w-5 " />
+                  Dashboard
+                </NavLink>
+              </li>
+
+              <li className="hs-accordion" id="account-accordion">
+                <NavLink
+                  to="/client/create-project"
+                  className={({ isActive }) =>
+                    isActive
+                      ? "bg-gray-100 flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-slate-700 rounded-lg hover:bg-gray-100 dark:bg-gray-900 dark:text-white dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
+                      : "flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-slate-700 rounded-lg hover:bg-gray-100 dark:bg-gray-900 dark:text-white dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
+                  }
+                >
+                  <FolderIcon className="h-5 w-5" />
+                  Request For Proposal
+                </NavLink>
+              </li>
+
+              <li className="hs-accordion" id="account-accordion">
+                <NavLink
+                  to="/client/myprojects"
+                  className={({ isActive }) =>
+                    isActive
+                      ? "bg-gray-100 flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-slate-700 rounded-lg hover:bg-gray-100 dark:bg-gray-900 dark:text-white dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
+                      : "flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-slate-700 rounded-lg hover:bg-gray-100 dark:bg-gray-900 dark:text-white dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
+                  }
+                >
+                  <FolderIcon className="h-5 w-5" />
+                  My Projects
+                </NavLink>
+              </li>
+
+              {userInfo.sub_role === "Head" && (
+                <li className="hs-accordion" id="account-accordion">
+                  <NavLink
+                    to="/client/team"
+                    className={({ isActive }) =>
+                      isActive
+                        ? "bg-gray-100 flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-slate-700 rounded-lg hover:bg-gray-100 dark:bg-gray-900 dark:text-white dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
+                        : "flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-slate-700 rounded-lg hover:bg-gray-100 dark:bg-gray-900 dark:text-white dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
+                    }
+                  >
+                    <UsersIcon className="h-5 w-5" />
+                    Team Project Allocation
+                  </NavLink>
+                </li>
+              )}
+
+              <li className="hs-accordion" id="account-accordion">
+                <NavLink
+                  to="/client/offers"
+                  className={({ isActive }) =>
+                    isActive
+                      ? "bg-gray-100 flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-slate-700 rounded-lg hover:bg-gray-100 dark:bg-gray-900 dark:text-white dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
+                      : "flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-slate-700 rounded-lg hover:bg-gray-100 dark:bg-gray-900 dark:text-white dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
+                  }
+                >
+                  <ReceiptPercentIcon class="h-6 w-5 text-yellow-500" />
+                  Cashback Offers
+                </NavLink>
+              </li>
+            </ul>
+          )}
+
+          {(userInfo.role === "project_manager" ||
+            userInfo.role === "key_account_holder") && (
+            <ul className="space-y-1.5">
+              <li>
+                <NavLink
+                  end
+                  className={({ isActive }) =>
+                    isActive
+                      ? "bg-gray-100 flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-slate-700 rounded-lg hover:bg-gray-100 dark:bg-gray-900 dark:text-white dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
+                      : "flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-slate-700 rounded-lg hover:bg-gray-100 dark:bg-gray-900 dark:text-white dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
+                  }
+                  to="/employee"
+                >
+                  <HomeIcon className="h-5 w-5 " />
+                  Dashboard
+                </NavLink>
+              </li>
+
+              <li className="hs-accordion" id="account-accordion">
+                <NavLink
+                  to="/employee/myprojects"
+                  className={({ isActive }) =>
+                    isActive
+                      ? "bg-gray-100 flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-slate-700 rounded-lg hover:bg-gray-100 dark:bg-gray-900 dark:text-white dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
+                      : "flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-slate-700 rounded-lg hover:bg-gray-100 dark:bg-gray-900 dark:text-white dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
+                  }
+                >
+                  <FolderIcon className="h-5 w-5" />
+                  My Projects
+                </NavLink>
+              </li>
+            </ul>
+          )}
         </nav>
       </div>
     </>

@@ -10,7 +10,7 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import LoginScreen from './Screens/LoginScreen';
-import HomeScreen from './Screens/HomeScreen';
+import ClientProjectsScreen from './Screens/ClientProjectsScreen';
 import RegisterScreen from './Screens/RegisterScreen';
 import ResetPasswordScreen from './Screens/ResetPasswordScreen';
 import SettingsScreen from './Screens/SettingsScreen';
@@ -26,8 +26,14 @@ import AddProjectScreen from './Screens/AddProjectScreen';
 import ClientRoute from './Components/ClientRoute';
 import AssignProjectScreen from './Screens/Adminscreens/AssignProjectScreen';
 import EmployeeRoute from './Components/EmployeeRoute';
-import EmployeeHomeScreen from './Screens/EmployeeScreens/EmployeeHomeScreen';
+import EmployeeProjectsScreen from './Screens/EmployeeScreens/EmployeeProjectsScreen';
 import AllProjectsScreen from './Screens/Adminscreens/AllProjectsScreen';
+import AllClientsScreen from './Screens/Adminscreens/AllClientsScreen';
+import EmployeeDashboardScreen from './Screens/EmployeeScreens/EmployeeDashboardScreen';
+import ClientDashboardScreen from './Screens/ClientDashboardScreen';
+import CashbackScreen from './Screens/CashbackScreen';
+import AllOrganizationScreen from './Screens/Adminscreens/AllOrganizationScreen';
+import TeamProjectAllocationScreen from './Screens/TeamProjectAllocationScreen';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -42,15 +48,21 @@ const router = createBrowserRouter(
         <Route path="/settings" element={<SettingsScreen />} />
       </Route>
       <Route path="" element={<ClientRoute />}>
-        <Route path="/client" element={<HomeScreen />} />
-        <Route path="/create-project" element={<AddProjectScreen />} />
+        <Route path="/client" element={<ClientDashboardScreen />} />
+        <Route path="/client/create-project" element={<AddProjectScreen />} />
+        <Route path="/client/myprojects" element={<ClientProjectsScreen />} />
+        <Route path="/client/team" element={<TeamProjectAllocationScreen />} />
+        <Route path="/client/offers" element={<CashbackScreen />} />
       </Route>
       <Route path="" element={<EmployeeRoute />}>
-        <Route path="/employee" element={<EmployeeHomeScreen />} />
+        <Route path="/employee" element={<EmployeeDashboardScreen />} />
+        <Route path="/employee/myprojects" element={<EmployeeProjectsScreen />} />
       </Route>
       <Route path="" element={<AdminRoute />}>
         <Route path="/admin" element={<AdminDashboardScreen />} />
+        <Route path="/admin/allorganizations" element={<AllOrganizationScreen />} />
         <Route path="/admin/allprojects" element={<AllProjectsScreen />} />
+        <Route path="/admin/allclients" element={<AllClientsScreen />} />
         <Route path="/admin/assign" element={<AssignProjectScreen />} />
         <Route path="/admin/register" element={<AdminRegisterScreen />} />
         <Route path="/admin/client-register" element={<RegisterScreen />} />

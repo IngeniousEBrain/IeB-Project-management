@@ -2,8 +2,13 @@ from os import read
 from rest_framework import serializers
 from onboarding.models import KAH, Client, Manager
 from onboarding.serializers import ClientSerializer
-from .models import Comment, Document, Invoice, Project
+from .models import ClientProjectAssociation, Comment, Document, Invoice, Project
 
+class ClientProjectAssociationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ClientProjectAssociation
+        fields = "__all__"
+        depth=1
 
 class DocumentSerializer(serializers.ModelSerializer):
     class Meta:
@@ -22,7 +27,6 @@ class CommentSerializer(serializers.ModelSerializer):
         depth = 1
 
 class ProjectSerializer(serializers.ModelSerializer):
-    client = ClientSerializer(read_only = True)
     class Meta:
         model = Project
         fields = "__all__"

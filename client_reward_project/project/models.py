@@ -1,3 +1,4 @@
+from enum import unique
 from django.db import models
 
 from onboarding.models import KAH, Client, Manager, Role, User
@@ -6,7 +7,7 @@ from onboarding.models import KAH, Client, Manager, Role, User
 class Project(models.Model):
     class Meta:
         db_table = 'project_proposal'
-    # status of the project - Accept/Reject/On Hold
+
     BUSINESS_UNIT_CHOICES = (
         ('HBI', 'Healthcare Business Intelligence (BI)'),
         ('HTI', 'Healthcare Technical Intelligence (TI)'),
@@ -40,8 +41,6 @@ class Project(models.Model):
     )
  
     project_id = models.BigAutoField(primary_key=True)
-    client = models.ForeignKey(
-        Client, related_name='projects', on_delete=models.CASCADE)
     account_manager = models.ForeignKey(
         KAH, related_name='managed_projects_account', on_delete=models.CASCADE, null=True, blank=True)
     project_manager = models.ForeignKey(
@@ -74,6 +73,19 @@ class Project(models.Model):
     def __str__(self):
         return self.project_name
     
+class ClientProjectAssociation(models.Model):
+    client = models.ForeignKey(Client, on_delete=models.CASCADE,
+                               related_name='client_association')
+    projects = models.ManyToManyField(Project)
+    allocated_by = models.ForeignKey(User, on_delete=models.CASCADE,
+                                     related_name='allocated_by_project', null=True, blank=True)
+    
+    
+    def __str__(self):
+        client_email = str(self.client.email) if self.client else "None"
+        project_name = [str(project.project_name)  for project in self.projects.all()]
+        return f"Client: {client_email} || Projects: {', '.join(project_name)}"
+    
 class Document(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     document = models.FileField(upload_to='documents/')
@@ -102,3 +114,23 @@ class Invoice(models.Model):
         max_length=10, choices=CURRENCY_CHOICES)
     invoice_file = models.FileField(upload_to='invoices/', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
+class Cashback(models.Model):
+    SCHEME_CHOICES = (
+        ('Yearly', 'Yearly'),
+        ('Quarterly', 'Quarterly'),
+    )
+
+    DISCOUNT_CHOICES = (
+        ('5', '5%'),
+        ('10', '10%'),
+        ('15', '15%'),
+        ('20', '20%')
+    )
+
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    availed_by = models.ForeignKey(Client, on_delete=models.CASCADE)
+    availed_on = models.DateTimeField(auto_now_add=True)
+    scheme = models.CharField(max_length=20, choices=SCHEME_CHOICES)
+    cutoff_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    discount = models.CharField(max_length=3, choices=DISCOUNT_CHOICES)

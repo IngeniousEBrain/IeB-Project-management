@@ -1,34 +1,30 @@
 import { Dialog, Transition } from "@headlessui/react";
-import { Fragment, useEffect, useState } from "react";
-import {
-  useAddCommentMutation,
-  useGetCommentsByProjectIdQuery,
-} from "../slices/projectApiSlice";
+import { Fragment, useRef, useState } from "react";
+import { FaImage } from "react-icons/fa6";
+import { useAddOrganizationMutation } from "../../slices/usersApiSlice";
 import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
 
-const CommentsModal = ({ id, overlayOpen, closeOverlay }) => {
-  const [newComment, setNewComment] = useState("");
-  const [addComment, isLoading] = useAddCommentMutation();
-  const { data: allcomments, isLoading: Fetching } =
-    useGetCommentsByProjectIdQuery(id);
+const AddOrgModal = ({ overlayOpen, closeOverlay }) => {
+  const [logo, setLogo] = useState(null);
+  const [name, setName] = useState("");
 
-  console.log(allcomments);
+  const [addOrganization, { isLoading: Adding }] = useAddOrganizationMutation();
 
-  const submitComment = async (e) => {
+  const submitHandler = async (e) => {
     e.preventDefault();
-    console.log(id);
     try {
       const formData = new FormData();
-      formData.append("comment", newComment);
-      const res = await addComment({ data: formData, id: id }).unwrap();
-      console.log(res);
-      if (res.msg) {
-        toast.success("Comment added successfully");
-        setNewComment("");
+      formData.append("org_name", name);
+      if (logo != null) {
+        formData.append("org_logo", logo);
+      }
+      const res = await addOrganization(formData);
+      if (res.data.msg) {
+        toast.success("Organization added successfully");
+        closeOverlay();
       }
     } catch (err) {
-      toast.error(err.error);
+      console.log(err);
     }
   };
 
@@ -63,72 +59,70 @@ const CommentsModal = ({ id, overlayOpen, closeOverlay }) => {
                 leaveFrom="opacity-100 scale-100"
                 leaveTo="opacity-0 scale-95"
               >
-                <Dialog.Panel className="w-full z-50 max-w-5xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                <Dialog.Panel className="w-full max-w-3xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
                   <Dialog.Title
                     as="h3"
                     className="text-xl font-medium leading-6 text-gray-900 border-b border-gray-900 pb-2"
                   >
-                    Comments
+                    Add Organization Details
                   </Dialog.Title>
+
                   <form
-                    className="mt-4 grid grid-cols-1 gap-x-6 gap-y-2 sm:grid-cols-6"
-                    onSubmit={submitComment}
+                    className="mt-4 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6"
+                    onSubmit={submitHandler}
+                    type="multipart/form-data"
                   >
+
                     <div className="col-span-full">
                       <label
-                        htmlFor="status"
+                        htmlFor="photo"
+                        className="block text-sm font-medium leading-6 text-gray-900"
+                      >
+                        Organization Logo
+                      </label>
+                      <div className="mt-2 flex items-center gap-x-3">
+                        <FaImage
+                          className="h-12 w-12 text-gray-300"
+                          aria-hidden="true"
+                        />
+                        <input
+                          type="file"
+                          onChange={(e) => setLogo(e.target.files[0])}
+                          id="profile-pic"
+                          accept=".jpg, .png, .jpeg"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="col-span-full">
+                      <label
+                        htmlFor="name"
                         className="block text-md font-medium text-gray-700"
                       >
-                        Write Comment
+                        Organization Name
                       </label>
                       <div className="mt-2">
-                        <textarea
+                        <input
                           type="text"
-                          name="comment"
-                          id="comment"
+                          name="name"
+                          id="name"
                           autoComplete="off"
-                          value={newComment}
-                          onChange={(e) => setNewComment(e.target.value)}
+                          onChange={(e) => setName(e.target.value)}
                           required
                           className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                         />
                       </div>
                     </div>
 
-                    <div className="mt-2 col-span-2">
+                    <div className="mt-4 col-span-full">
                       <button
                         type="submit"
                         className="w-full inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-                        // onClick={() => closeOverlay()}
                       >
-                        Add Comment
+                        Add Organization
                       </button>
                     </div>
                   </form>
-
-                  {allcomments?.comments.length > 0 && (
-                    <div className="mt-4">
-                      <h1 className="block text-md font-medium text-gray-700 border-b-2 border-gray-400">
-                        Previous Comments
-                      </h1>
-                      {allcomments?.comments.map((comment, index) => (
-                        <div className="my-4" key={index}>
-                          <div className="flex justify-between">
-                            <p className="font-semibold text-md text-gray-600">
-                              {comment.created_by.first_name || comment.created_by.email}
-                            </p>
-                            <p className="text-sm text-gray-500">
-                              {comment.created_at}
-                            </p>
-                          </div>
-                          <div>
-                            <p>{comment.comment}</p>
-                            {comment.document && <p>Attached File</p>}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
                 </Dialog.Panel>
               </Transition.Child>
             </div>
@@ -139,4 +133,4 @@ const CommentsModal = ({ id, overlayOpen, closeOverlay }) => {
   );
 };
 
-export default CommentsModal;
+export default AddOrgModal;

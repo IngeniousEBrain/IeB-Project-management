@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useAllProjectsQuery } from "../../slices/projectApiSlice";
+import { useAllProjectsQuery, useDownloadProposalMutation } from "../../slices/projectApiSlice";
 import Loading from "../../Components/Loading";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import {
@@ -12,11 +12,11 @@ import {
   FaSpinner,
   FaTrash,
 } from "react-icons/fa6";
-import ProjectScreen from "../../Components/AdminComponents/AssignProjectModal";
 import EditProjectModal from "../../Components/AdminComponents/EditProjectModal";
 import AddProjectModal from "../../Components/AdminComponents/AddProjectModal";
 import ProjectStatusModal from "../../Components/ProjectStatusModal";
 import InvoiceModal from "../../Components/AdminComponents/InvoiceModal";
+import { toast } from "react-toastify";
 
 const AllProjectsScreen = () => {
   const [open, setOpen] = useState(false);
@@ -55,6 +55,26 @@ const AllProjectsScreen = () => {
     setOpenInvoice(false);
   };
 
+  const [download] = useDownloadProposalMutation();
+  const handleDownload = async (downloadId, filename) => {
+    console.log(downloadId, filename);
+    try {
+      const res = await download(downloadId);
+      console.log(res.data);
+
+      const downloadLink = window.URL.createObjectURL(res.data);
+      const link = document.createElement("a");
+      link.href = downloadLink;
+      link.setAttribute("download", filename);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      toast.success("File downloaded successfully");
+    } catch (err) {
+      toast.error(err.error);
+    }
+  };
+
   const { data: projects, isLoading, error } = useAllProjectsQuery();
 
   const rows = projects?.projects;
@@ -87,18 +107,19 @@ const AllProjectsScreen = () => {
       headerName: "Project Name",
       width: 150,
     },
-    {
-      field: "client",
-      headerName: "Client",
-      width: 110,
-      renderCell: (params) => {
-        return (
-          <div>
-            {params.row.client.first_name} {params.row.client.last_name}
-          </div>
-        );
-      },
-    },
+    // {
+    //   field: "client",
+    //   headerName: "Client",
+    //   width: 110,
+    //   valueFormatter: (value) => `${value.first_name} ${value.last_name}`,
+    //   renderCell: (params) => {
+    //     return (
+    //       <div>
+    //         {params.row.client.first_name} {params.row.client.last_name}
+    //       </div>
+    //     );
+    //   },
+    // },
     {
       field: "type_of_service",
       headerName: "Service Type",
@@ -124,7 +145,11 @@ const AllProjectsScreen = () => {
         return (
           <div className="flex items-center justify-center h-full">
             {params.row.proposal_upload_file ? (
-              <button className="">
+              <button
+                onClick={() =>
+                  handleDownload(params.row.project_id, params.row.project_name)
+                }
+              >
                 <FaDownload className="text-center h-5 w-5 text-indigo-600 hover: text-indigo-500" />
               </button>
             ) : (
@@ -219,33 +244,6 @@ const AllProjectsScreen = () => {
         );
       },
     },
-    // {
-    //   field: "actions",
-    //   headerName: "Actions",
-    //   width: 100,
-    //   renderCell: (params) => (
-    //     <div className="mt-2 flex items-center space-x-2">
-    //       <button
-    //         className="p-2 rounded-md flex items-center space-x-2"
-    //         onClick={() => {
-    //           openEdit(params.row.project_id);
-    //           setEditid(params.row.project_id);
-    //         }}
-    //       >
-    //         <FaPencil className="h-5 w-5 text-green-600" />
-    //       </button>
-    //       {/* <button
-    //         className="p-2 rounded-md flex items-center space-x-2"
-    //         onClick={() => {
-    //           openDelete(params.row._id);
-    //           setDeleteid(params.row._id);
-    //         }}
-    //       >
-    //         <FaTrash className="text-red-500" />
-    //       </button> */}
-    //     </div>
-    //   ),
-    // },
   ];
 
   return (
@@ -293,7 +291,8 @@ const AllProjectsScreen = () => {
                   debounceMs: 500,
                 },
                 printOptions: { disableToolbarButton: true },
-                csvOptions: { disableToolbarButton: true },
+                csvOptions: {fileName: "projects.csv"},
+                excelExportOptions: { fileName : "projects.xlsx"},
               },
             }}
             pageSizeOptions={[50]}

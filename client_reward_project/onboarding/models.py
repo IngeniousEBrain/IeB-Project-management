@@ -51,12 +51,39 @@ class Role(models.Model):
     )
     role = models.CharField(max_length=20, choices = ROLE_CHOICES)
 
+class Organization(models.Model):
+    org_logo = models.ImageField(upload_to='org-logos/', blank=True)
+    org_name = models.CharField(max_length=100)
+
+
 class Client(User):
+
+    DISCOUNT_CHOICES = (
+        ('0', '0%'),
+        ('5', '5%'),
+        ('10', '10%'),
+        ('15', '15%'),
+        ('20', '20%')
+    )
+
+    SUBROLE_CHOICES = (
+        ('Head', 'Head'),
+        ('Team', 'Team Member')
+    )
+
     role = models.CharField(max_length=20, choices = Role.ROLE_CHOICES, default=Role.CLIENT)
+    sub_role = models.CharField(max_length=20, choices = SUBROLE_CHOICES, default='Team')
+    head = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True)
+    organization = models.ForeignKey(Organization, related_name='org_linked', on_delete=models.CASCADE, null=True, blank=True)
     client_code = models.CharField()
     geographical_region = models.CharField(max_length=100)
-    currency = models.CharField(max_length=3)
+    currency = models.CharField(max_length=10)
     address = models.TextField()
+    yearly_amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    quarterly_amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    yearly_discount = models.CharField(max_length=3, choices=DISCOUNT_CHOICES, default='0')
+    quarterly_discount = models.CharField(max_length=3, choices=DISCOUNT_CHOICES, default='0')
+    cashback_currency = models.CharField(max_length=10, null=True, blank=True)
 
     class Meta:
         verbose_name = 'Client'

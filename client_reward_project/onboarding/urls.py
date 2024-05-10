@@ -2,9 +2,10 @@ from django.urls import path
 # from .views import ManagerRegistrationView, SendCredentialEmailView, UserChangePasswordView, UserLoginView, UserLogoutView, UserRegistrationView, SendUserResetPasswordEmailView, UserResetPasswordView
 from rest_framework_simplejwt.views import TokenRefreshView
 
-from .views import ClientRegistrationView, EmployeeRegistrationView, LoginView, SendCredentialEmailView, SendUserResetPasswordEmailView, UserChangePasswordView, UserLogoutView, UserResetPasswordView
+from .views import AddOrganizationView, ClientRegistrationView, EmployeeRegistrationView, LoginView, SendCredentialEmailView, SendUserResetPasswordEmailView, UserChangePasswordView, UserLogoutView, UserResetPasswordView
 
 urlpatterns = [
+    path('add-organization/', AddOrganizationView.as_view()),
     path('register/', ClientRegistrationView.as_view()),
     path('admin-registrations/', EmployeeRegistrationView.as_view()),
     path('login/', LoginView.as_view()),
