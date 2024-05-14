@@ -39,13 +39,13 @@ const EditProjectModal = ({ id, overlayOpen, closeOverlay }) => {
         }))
         setSelectedClient(transformOptions);
       }
-      if (projectDetails.project.project_manager.email) {
+      if (projectDetails.project.project_manager?.email) {
         setSelectedManager({
           label: projectDetails.project.project_manager?.email,
           value: projectDetails.project.project_manager?.email,
         });
       }
-      if (projectDetails.project.account_manager.email) {
+      if (projectDetails.project.account_manager?.email) {
         setSelectedAccountHolder({
           label: projectDetails.project.account_manager?.email,
           value: projectDetails.project.account_manager?.email,

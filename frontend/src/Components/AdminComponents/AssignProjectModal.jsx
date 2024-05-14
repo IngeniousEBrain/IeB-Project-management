@@ -59,9 +59,9 @@ const AssignProjectModal = ({ id, overlayOpen, closeOverlay }) => {
       closeOverlay();
     } catch (err) {
       console.log(err);
-      if (err.data.project_manager) toast.error(err.data.project_manager[0]);
-      if (err.data.account_manager) toast.error(err.data.account_manager[0]);
-      if (err.data.non_field_errors) toast.error(err.data.non_field_errors[0]);
+      if (err.data?.project_manager) toast.error(err.data?.project_manager[0]);
+      if (err.data?.account_manager) toast.error(err.data?.account_manager[0]);
+      if (err.data?.non_field_errors) toast.error(err.data?.non_field_errors[0]);
     }
   };
 

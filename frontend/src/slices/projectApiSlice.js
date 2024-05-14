@@ -114,6 +114,15 @@ export const projectApiSlice = apiSlice.injectEndpoints({
         },
       }),
     }),
+    getTeam: builder.query({
+      query: () => ({
+        url: PROJECT_URL + "all-team-members/",
+        method: "GET",
+        headers: {
+            Authorization: `Bearer ${Cookies.get('access_token')}`,
+        },
+      }),
+    }),
     assignProjectToAuthorities: builder.mutation({
       query: ({ project_manager, account_manager, id }) => ({
         url: PROJECT_URL + "assign-project/" + id + "/",
@@ -310,6 +319,7 @@ export const {
   useGetKeyAccountHoldersQuery,
   useGetOrganizationsQuery,
   useGetHeadsQuery,
+  useGetTeamQuery,
   useAssignProjectToAuthoritiesMutation,
   useAllocateProjectToTeamMutation,
   useGetProjectsQuery,

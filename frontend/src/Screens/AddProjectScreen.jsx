@@ -1,10 +1,11 @@
-import React, { useState } from "react";
-import { useSelector } from "react-redux";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useAddProjectMutation } from "../slices/projectApiSlice";
 import Loading from "../Components/Loading";
 import { useValidateCouponMutation } from "../slices/cashbackApiSlice";
+import { updateCredentials } from "../slices/authSlice";
 
 const AddProjectScreen = () => {
   const [projectName, setProjectName] = useState("");
@@ -15,7 +16,7 @@ const AddProjectScreen = () => {
   const [coupon, setCoupon] = useState("");
 
   const { userInfo } = useSelector((state) => state.auth);
-  const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [addProject, { isLoading }] = useAddProjectMutation();
   const [validateCoupon, { isLoading: Validating }] =
     useValidateCouponMutation();
@@ -54,9 +55,17 @@ const AddProjectScreen = () => {
       formData.append("coupon", coupon)
       console.log("form", formData);
       const res = await addProject(formData);
-      if (res.msg) {
-        toast.success(res.msg);
-        navigate("/client");
+      console.log(res)
+      if (res.data?.msg) {
+        toast.success(res.data?.msg);
+        if (coupon !== ""){
+          if (coupon[0] === 'Y'){
+            dispatch(updateCredentials({ yearly_discount: "0", yearly_amount: null  }));
+          }
+          else if (coupon[1] === 'Q'){
+            dispatch(updateCredentials({ quarterly_discount: "0", quarterly_amount: null  }));
+          }
+        }
       }
     } catch (err) {
       console.log(err);

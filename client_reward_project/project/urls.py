@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import AddCommentView, AddInvoiceView, AllProjectsView, AssignView, ClientRevenueView, ClientsListView, CommentByProjectIdView, DashboardView, DisplayAssignedProjects, DisplayClientProjects, DownloadDocumentView, DownloadProposalView, EmployeeRevenueView, FileUploadView, HeadListView, KAHListView, ManagersListView, OrganizationsListView, ProjectCreationView, ProjectDetailsView, ProjectEditView, ProjectStatusUpdateView, RuleView, StatusUpdateView, TeamProjectAllocationView, UnassignedProjectsView, ValidateCoupon
+from .views import AddCommentView, AddInvoiceView, AllProjectsView, AssignView, ClientRevenueView, ClientsListView, CommentByProjectIdView, DashboardView, DisplayAssignedProjects, DisplayClientProjects, DownloadDocumentView, DownloadProposalView, EmployeeRevenueView, FileUploadView, HeadListView, KAHListView, ManagersListView, OrganizationsListView, ProjectCreationView, ProjectDetailsView, ProjectEditView, ProjectStatusUpdateView, RuleView, StatusUpdateView, TeamListView, TeamProjectAllocationView, UnassignedProjectsView, ValidateCoupon
 
 urlpatterns = [
     path('project-creation/', ProjectCreationView.as_view()),
@@ -12,6 +12,7 @@ urlpatterns = [
     path('allkahs/', KAHListView.as_view()),
     path('allorganizations/', OrganizationsListView.as_view()),
     path('allheads/', HeadListView.as_view()),
+    path('all-team-members/', TeamListView.as_view()),
     path('assign-project/<id>/', AssignView.as_view()),
     path('team-project-allocation/<id>/', TeamProjectAllocationView.as_view()),
     path('display-assigned-projects/', DisplayAssignedProjects.as_view()),

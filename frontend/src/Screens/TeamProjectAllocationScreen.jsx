@@ -6,6 +6,7 @@ import {
   useGetClientProjectsQuery,
   useGetClientsQuery,
   useGetProjectByIdQuery,
+  useGetTeamQuery,
 } from "../slices/projectApiSlice";
 import { skipToken } from "@reduxjs/toolkit/query/react";
 import { toast } from "react-toastify";
@@ -13,7 +14,7 @@ import { toast } from "react-toastify";
 const TeamProjectAllocationScreen = () => {
   const [selectedProject, setSelectedProject] = useState(null);
   const [selectedClient, setSelectedClient] = useState([]);
-  const { data: clientsData, isLoading: ClientLoading } = useGetClientsQuery();
+  const { data: clientsData, isLoading: ClientLoading } = useGetTeamQuery();
   const {
     data: projects,
     isLoading: ProjectLoading,
@@ -32,7 +33,7 @@ const TeamProjectAllocationScreen = () => {
   });
 
   const clientOptions = [];
-  clientsData?.clients?.forEach(function (element) {
+  clientsData?.team?.forEach(function (element) {
     clientOptions.push({ label: element.email, value: element.email });
   });
 
@@ -64,7 +65,7 @@ const TeamProjectAllocationScreen = () => {
         id: selectedProject.value,
       }).unwrap();
       console.log(res);
-      if (res.data.msg) {
+      if (res.msg) {
         toast.success("Allocation successful!");
       }
     } catch (err) {

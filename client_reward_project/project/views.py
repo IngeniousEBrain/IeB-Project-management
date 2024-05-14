@@ -126,6 +126,13 @@ class ProjectCreationView(APIView):
                             cutoff_amount = client.quarterly_amount
                             discount = client.quarterly_discount
                         offer = Cashback.objects.create(project=project, availed_by=client, scheme=scheme, cutoff_amount=cutoff_amount, discount=discount)
+                        if scheme == "Yearly":
+                            client.yearly_amount = None
+                            client.yearly_discount = 0
+                        elif scheme == "Quarterly":
+                            client.quarterly_amount = None
+                            client.quarterly_discount = 0
+                        client.save()
             return Response({'project': ProjectSerializer(project).data, 'msg':'Project created successfully'}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
@@ -158,9 +165,10 @@ class ProjectEditView(APIView):
                         client_project_association.projects.remove(project)
                 
                 for client in clients:
-                    client_data = Client.objects.get(email = client)
-                    client_project_association = ClientProjectAssociation.objects.get_or_create(client=client_data, allocated_by=user)[0]
-                    client_project_association.projects.add(project)
+                    if client not in existing_emails:
+                        client_data = Client.objects.get(email = client)
+                        client_project_association = ClientProjectAssociation.objects.get_or_create(client=client_data, allocated_by=user)[0]
+                        client_project_association.projects.add(project)
                 
                 documents_data = request.FILES.getlist('documents')
                 for doc in documents_data:
@@ -235,6 +243,15 @@ class HeadListView(APIView):
             heads = Client.objects.filter(sub_role='Head')
             list = ClientSerializer(heads, many=True)
             return Response({'heads': list.data, 'msg':'List of heads populated successfully'}, status=status.HTTP_200_OK)
+        return Response({"error" : "Access Denied"}, status=status.HTTP_401_UNAUTHORIZED)
+    
+class TeamListView(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request, format=None):
+        if request.user.client.sub_role == "Head":
+            heads = Client.objects.filter(head=request.user)
+            list = ClientSerializer(heads, many=True)
+            return Response({'team': list.data, 'msg':'List of team members populated successfully'}, status=status.HTTP_200_OK)
         return Response({"error" : "Access Denied"}, status=status.HTTP_401_UNAUTHORIZED)
     
 class ProjectDetailsView(APIView):
@@ -312,15 +329,18 @@ class TeamProjectAllocationView(APIView):
             clients = request.data.getlist('client')
 
             for email in existing_emails:
-                if email not in clients:
+                if email not in clients and email != request.user.email:
                     client_data = Client.objects.get(email = email)
-                    client_project_association = ClientProjectAssociation.objects.get(client=client_data)
+                    admin_client_project_association = ClientProjectAssociation.objects.get(client=client_data, allocated_by=request.user)
+                    admin_client_project_association.projects.remove(project)
+                    client_project_association = ClientProjectAssociation.objects.get(client=client_data, allocated_by=client_data.head)
                     client_project_association.projects.remove(project)
 
             for client in clients:
-                client_data = Client.objects.get(email = client)
-                client_project_association = ClientProjectAssociation.objects.get_or_create(client=client_data, allocated_by=request.user)[0]
-                client_project_association.projects.add(project)
+                if client not in existing_emails:
+                    client_data = Client.objects.get(email = client)
+                    client_project_association = ClientProjectAssociation.objects.get_or_create(client=client_data, allocated_by=request.user)[0]
+                    client_project_association.projects.add(project)
             return Response({'msg':'Project assigned successfully'}, status=status.HTTP_200_OK)
         return Response({"error" : "Access Denied"}, status=status.HTTP_401_UNAUTHORIZED)
     
@@ -483,35 +503,11 @@ class AddInvoiceView(APIView):
             if serializer.is_valid(raise_exception=True):
                 serializer.save(project=project)
                 project.billing_details = 'invoiced'
+                project.save()
                 return Response({'msg':'Invoice added successfully'}, status=status.HTTP_200_OK)
             return Response({"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
         return Response({"error": "Access denied!"}, status=status.HTTP_401_UNAUTHORIZED)
 
-   
-class ProposalStatusChart(APIView):
-    # permission_classes = [IsAuthenticated]
-    def get(self, request, format=None):
-        # user = User.objects.get(email=request.user)
-        # if user is not None:
-        try:
-            total_proposals = Project.objects.count()
-            total_projects = Project.objects.filter(status = "accepted").count()
-            proposal_status_cnt = Project.objects.all().values('status').annotate(count = Count('status'))
-            project_status_cnt = Project.objects.exclude(project_status = "not_applicable").values('project_status').annotate(count = Count('project_status'))
-            bu_proposal_cnt = Project.objects.all().values('business_unit').annotate(proposal_count = Count('business_unit'))
-            bu_project_cnt = Project.objects.exclude(project_status = "not_applicable").values('business_unit').annotate(project_count = Count('business_unit'))
-            data = {
-                "total_proposals": total_proposals,
-                "total_projects": total_projects,
-                "proposal_status_cnt": proposal_status_cnt,
-                "project_status_cnt": project_status_cnt,
-                "bu_proposal_cnt": bu_proposal_cnt,
-                "bu_project_cnt": bu_project_cnt,
-            }
-            return Response({"data": data, "msg": "MIS Report data fetched successfully"}, status=status.HTTP_200_OK)
-        except:
-            return Response({"error" : "Error in populating project status count. Retry!"}, status=status.HTTP_400_BAD_REQUEST)
-        # return Response({"error" : "User not found"}, status=status.HTTP_404_NOT_FOUND)
 
 class DashboardView(APIView):
 

@@ -1,5 +1,4 @@
 from django.urls import path
-# from .views import ManagerRegistrationView, SendCredentialEmailView, UserChangePasswordView, UserLoginView, UserLogoutView, UserRegistrationView, SendUserResetPasswordEmailView, UserResetPasswordView
 from rest_framework_simplejwt.views import TokenRefreshView
 
 from .views import AddOrganizationView, ClientRegistrationView, EmployeeRegistrationView, LoginView, SendCredentialEmailView, SendUserResetPasswordEmailView, UserChangePasswordView, UserLogoutView, UserResetPasswordView

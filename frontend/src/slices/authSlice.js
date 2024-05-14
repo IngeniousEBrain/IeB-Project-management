@@ -33,9 +33,14 @@ const authSlice = createSlice({
       Cookie.remove('access_token');
       Cookie.remove('refresh_token');
     },
+    updateCredentials: (state, action) => {
+      console.log(action.payload);
+      state.userInfo = { ...state.userInfo, ...action.payload };
+      localStorage.setItem("userInfo", JSON.stringify(state.userInfo));
+    },
   },
 });
 
-export const { setCredentials, setAccessToken, logout } = authSlice.actions;
+export const { setCredentials, setAccessToken, logout, updateCredentials } = authSlice.actions;
 
 export default authSlice.reducer;
