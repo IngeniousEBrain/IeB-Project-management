@@ -9,6 +9,9 @@ from .serializers import AddOrganizationSerializer, ClientRegistrationSerializer
 
 
 def get_tokens_for_user(user):
+    """
+    Generates access and refresh tokens manually for user authentication
+    """
     refresh = RefreshToken.for_user(user)
 
     return {
@@ -18,6 +21,11 @@ def get_tokens_for_user(user):
 
 class AddOrganizationView(APIView):
     def post(self, request, format=None):
+        """
+        Creates organization from user input 
+        Input:
+            org_logo, org_name
+        """
         serializer = AddOrganizationSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             org = serializer.save()
@@ -27,6 +35,13 @@ class AddOrganizationView(APIView):
 
 class ClientRegistrationView(APIView):
     def post(self, request, format=None):
+        """
+        Registers clients (both head and team) from user input 
+        Input:
+            If team member is the client, their head will be linked.
+            If head is the client, no head will be linked.
+            Foreign Key relaionship is used to link head with their team members.
+        """
         serializer = ClientRegistrationSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             organization = Organization.objects.get(org_name = request.data['organization'])
@@ -40,6 +55,12 @@ class ClientRegistrationView(APIView):
 
 class EmployeeRegistrationView(APIView):
     def post(self, request, format=None):
+        """
+        Registers employees (both project managers and key account holders) from user input 
+        Input:
+            If registered user is the project manager, add them to Manager Table.
+            If registered user is the key account holder, add them to KAH Table.
+        """
         if request.data['role'] == 'project_manager':
             serializer = ManagerRegistrationSerializer(data=request.data)
         elif request.data['role'] == 'key_account_holder':
@@ -52,6 +73,9 @@ class EmployeeRegistrationView(APIView):
 
 class LoginView(APIView):
     def post(self, request, format=None):
+        """
+        Logs in users based on email and password
+        """
         serializer = LoginSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             email = serializer.data.get('email')
@@ -91,6 +115,11 @@ class LoginView(APIView):
 class UserChangePasswordView(APIView):
     permission_classes = [IsAuthenticated]
     def post(self, request, format=None):
+        """
+        Change user password for authenticated users only
+        Input:
+            New password, Confirm Password
+        """
         serializer = UserChangePasswordSerializer(data=request.data, context={'user':request.user})
         if serializer.is_valid(raise_exception=True):
             return Response({'msg':'Password changed Successfully'}, status=status.HTTP_200_OK)
@@ -98,6 +127,9 @@ class UserChangePasswordView(APIView):
 
 class SendUserResetPasswordEmailView(APIView):
     def post(self, request, format=None):
+        """
+        Sends reset password email containing reset link to registered user email
+        """
         serializer = SendUserResetPasswordEmailSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             return Response({'msg':'Password reset mail sent successfully. Please check your email'}, status=status.HTTP_200_OK)
@@ -105,6 +137,11 @@ class SendUserResetPasswordEmailView(APIView):
     
 class UserResetPasswordView(APIView):
     def post(self, request, uid, token, format=None):
+        """
+        Reset user password using reset link unique id and token
+        Input:
+            New Password, Confirm Password
+        """
         serializer = UserResetPasswordSerializer(data=request.data, context={'uid': uid, 'token': token})  
         if serializer.is_valid(raise_exception=True):
             return Response({'msg':'Password reset Successfully'}, status=status.HTTP_200_OK)
@@ -113,6 +150,9 @@ class UserResetPasswordView(APIView):
 class UserLogoutView(APIView):
     permission_classes = [IsAuthenticated]
     def post(self, request, format=None):
+        """
+        Logs out user and blacklists the token so that it can't be reused.
+        """
         try:
             refresh_token = request.data.get('refresh')
             token = RefreshToken(refresh_token)
@@ -124,8 +164,11 @@ class UserLogoutView(APIView):
         
 class SendCredentialEmailView(APIView):
     def post(self, request, format=None):
+        """
+        Sends email to stakeholders containing their credential information 
+        """
         serializer = SendCredentialsEmailSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
-            return Response({'msg':'Credentials sent successfully. Please check your email'}, status=status.HTTP_200_OK)
+            return Response({'msg':'Credentials sent successfully.'}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     

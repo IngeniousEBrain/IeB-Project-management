@@ -17,6 +17,18 @@ import pandas as pd
 # Create your views here.
 
 def validateCouponCode(client, coupon):
+    """
+    Validates coupon code.
+    Input:
+        Client details, coupon code
+    Validation:
+        For yearly discount:
+            Calculates yearly amount outsourced and compares it to yearly_cutoff set by admin, if it's greater and coupon code matched with valid coupon code, return true.
+        For quarterly discount:
+            Calculates quarterly amount outsourced for the current quarter and compares it to quarterly_cutoff set by admin, if it's greater and coupon code matched with valid coupon code, return true.
+        Otherwise:
+            Return false
+    """
     possible_yearly_coupon = 'Y'+ client.first_name.upper() + client.yearly_discount
     possible_quarterly_coupon = 'Q'+ client.first_name.upper() + client.quarterly_discount
     projects = Project.objects.filter(clientprojectassociation__client=client)
@@ -91,6 +103,16 @@ class ProjectCreationView(APIView):
     permission_classes = [IsAuthenticated]
     parser_classes = [MultiPartParser]
     def post(self, request, format=None):
+        """
+        Creates project proposal with necessary details.
+        Input:
+            By Admin or Key Account Holder:
+                Managers, key account holders and clients are linked.
+                If documents added, they will be linked to the project.
+            By Client:
+                Project will be linked to that client.
+                If coupon code is added, it will be first validated and then, the details regarding cashback will be recorded.
+        """
         print(request.data)
         user = User.objects.get(email = request.user.email)
         serializer = ProjectCreationSerializer(data=request.data)
@@ -140,6 +162,11 @@ class ProjectEditView(APIView):
     permission_classes = [IsAuthenticated]
     parser_classes = [MultiPartParser]
     def put(self, request, id, format=None):
+        """
+        Edits project proposal details.
+        Process:
+            If clients are edited, new clients will be linked to the project and if some existing clients are removed, they will no longer be linked to the project.
+        """
         print(request.data)
         user = User.objects.get(email = request.user.email)
         project_instance = Project.objects.get(project_id = id)
@@ -180,6 +207,9 @@ class ProjectEditView(APIView):
 class AllProjectsView(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request, format=None):
+        """
+        Provides list of all the project proposals to admin.
+        """
         if request.user.is_superuser:
             all_projects = Project.objects.all()
             projects = ProjectSerializer(all_projects, many=True)
@@ -189,6 +219,9 @@ class AllProjectsView(APIView):
 class UnassignedProjectsView(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request, format=None):
+        """
+        Provides list of all the unassigned project proposals to admin.
+        """
         if request.user.is_superuser:
             unassigned_projects = Project.objects.filter(project_manager=None, account_manager=None)
             projects = ProjectSerializer(unassigned_projects, many=True)
@@ -198,12 +231,12 @@ class UnassignedProjectsView(APIView):
 class ClientsListView(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request, format=None):
+        """
+        For admin or key account holder:
+            Provides list of all the clients.
+        """
         if request.user.is_superuser or hasattr(request.user, 'kah'):
             clients = Client.objects.all()
-            list = ClientSerializer(clients, many=True)
-            return Response({'clients': list.data, 'msg':'List of clients populated successfully'}, status=status.HTTP_200_OK)
-        elif hasattr(request.user, 'client') and request.user.client.sub_role == 'Head':
-            clients = Client.objects.filter(head=request.user)
             list = ClientSerializer(clients, many=True)
             return Response({'clients': list.data, 'msg':'List of clients populated successfully'}, status=status.HTTP_200_OK)
         return Response({"error" : "Access Denied"}, status=status.HTTP_401_UNAUTHORIZED)
@@ -212,6 +245,10 @@ class ClientsListView(APIView):
 class ManagersListView(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request, format=None):
+        """
+        For admin or key account holder:
+            Provides list of all the managers.
+        """
         if request.user.is_superuser or hasattr(request.user, 'kah'):
             managers = Manager.objects.all()
             list = ManagerSerializer(managers, many=True)
@@ -221,6 +258,10 @@ class ManagersListView(APIView):
 class KAHListView(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request, format=None):
+        """
+        For admin or key account holder:
+            Provides list of all the key account holders.
+        """
         if request.user.is_superuser or hasattr(request.user, 'kah'):
             account_holders = KAH.objects.all()
             list = KAHSerializer(account_holders, many=True)
@@ -230,6 +271,9 @@ class KAHListView(APIView):
 class OrganizationsListView(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request, format=None):
+        """
+        Provides list of all the organizations to admin.
+        """
         if request.user.is_superuser:
             orgs = Organization.objects.all()
             list = OrganizationSerializer(orgs, many=True)
@@ -239,6 +283,9 @@ class OrganizationsListView(APIView):
 class HeadListView(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request, format=None):
+        """
+        Provides list of all the heads to admin.
+        """
         if request.user.is_superuser:
             heads = Client.objects.filter(sub_role='Head')
             list = ClientSerializer(heads, many=True)
@@ -248,6 +295,10 @@ class HeadListView(APIView):
 class TeamListView(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request, format=None):
+        """
+        For Heads (clients):
+            Provides list of all the team members associated to them.
+        """
         if request.user.client.sub_role == "Head":
             heads = Client.objects.filter(head=request.user)
             list = ClientSerializer(heads, many=True)
@@ -257,6 +308,9 @@ class TeamListView(APIView):
 class ProjectDetailsView(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request, id, format=None):
+        """
+        Provides project details of a particular project.
+        """
         if request.user.is_superuser:
             project = Project.objects.get(project_id=id)
             projectDetails = ProjectSerializer(project)
@@ -308,6 +362,9 @@ class ProjectDetailsView(APIView):
 class AssignView(APIView):
     permission_classes = [IsAuthenticated]
     def post(self, request, id, format=None):
+        """
+        Assigns project proposal to respective managers and key account holders, if project proposal is created by client itself.         
+        """
         if request.user.is_superuser:
             project = Project.objects.get(project_id=id)
             manager = Manager.objects.get(email = request.data['project_manager'])
@@ -321,6 +378,11 @@ class AssignView(APIView):
 class TeamProjectAllocationView(APIView):
     permission_classes = [IsAuthenticated]
     def post(self, request, id, format=None):
+        """
+        Allocates project to team members by head.
+        Process:
+            If team members are edited, new team members will be linked to the project and if some existing team members are removed, they will no longer be linked to the project.
+        """
         if request.user.client.sub_role == "Head":
             project = Project.objects.get(project_id=id)
             existing_clients = ClientProjectAssociation.objects.filter(projects=project)
@@ -347,6 +409,9 @@ class TeamProjectAllocationView(APIView):
 class DisplayAssignedProjects(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request, format=None):
+        """
+        Provides list of all the project proposals to respective stakeholder (employees).
+        """
         user = User.objects.get(email=request.user)
         if user is not None:
             try:
@@ -368,7 +433,9 @@ class FileUploadView(APIView):
     permission_classes = [IsAuthenticated]
     parser_classes = [MultiPartParser]
     def put(self, request, id, format=None):
-        # print(request.FILES['file'])
+        """
+        Uploads Proposal file to the project by Key Account Holder.
+        """
         user = User.objects.get(email=request.user)
         if user is not None:
             try:
@@ -388,6 +455,9 @@ class FileUploadView(APIView):
 class DisplayClientProjects(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request, format=None):
+        """
+        Provides list of all the project proposals of logged in client.
+        """
         user = User.objects.get(email=request.user)
         if user is not None:
             try:
@@ -406,6 +476,9 @@ class DisplayClientProjects(APIView):
 class StatusUpdateView(APIView):
     permission_classes = [IsAuthenticated]
     def put(self, request, id, format=None):
+        """
+        Updates proposal status.
+        """
         print(request.data['status'])
         user = User.objects.get(email=request.user)
         if user is not None:
@@ -422,6 +495,9 @@ class StatusUpdateView(APIView):
 class DownloadProposalView(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request, id, format=None):
+        """
+        Downloads project proposal document.
+        """
         try:
             proposal = Project.objects.get(project_id = id)
             proposal_file = proposal.proposal_upload_file.path
@@ -437,6 +513,9 @@ class DownloadProposalView(APIView):
 class DownloadDocumentView(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request, id, format=None):
+        """
+        Downloads specific technical or other document.
+        """
         try:
             document = Document.objects.get(id = id)
             filepath = document.document.path
@@ -454,6 +533,9 @@ class AddCommentView(APIView):
     permission_classes = [IsAuthenticated]
     parser_classes = [MultiPartParser]
     def post(self, request, id, format=None):
+        """
+        Adds new comment to the project proposal.
+        """
         print(request.data)
         project = Project.objects.get(project_id=id)
         serializer = CommentCreationSerializer(data=request.data)
@@ -466,6 +548,9 @@ class AddCommentView(APIView):
 class CommentByProjectIdView(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request, id, format=None):
+        """
+        Views all comments linked to a particular project proposal.
+        """
         try:
             getcomments = Comment.objects.filter(project=id)
             print(getcomments)
@@ -481,6 +566,9 @@ class CommentByProjectIdView(APIView):
 class ProjectStatusUpdateView(APIView):
     permission_classes = [IsAuthenticated]
     def put(self, request, id, format=None):
+        """
+        Updates project status of a particular project proposal.
+        """
         user = User.objects.get(email=request.user)
         print(request.data['project_status'])
         if user is not None:
@@ -497,6 +585,9 @@ class AddInvoiceView(APIView):
     permission_classes = [IsAuthenticated]
     parser_classes = [MultiPartParser]
     def post(self, request, id, format=None):
+        """
+        Adds invoice to a particular project proposal.
+        """
         if request.user.is_superuser:
             project = Project.objects.get(project_id=id)
             serializer = InvoiceSerializer(data=request.data)
@@ -512,6 +603,20 @@ class AddInvoiceView(APIView):
 class DashboardView(APIView):
 
     def get(self, request, format=None):
+        """
+        Draws insights from the data and converts it in a form to prepare MIS Report for Admin.
+        Filters:
+            Start Date, End Date and Business units.
+        Logic:
+            Both start and end dates are defined:
+                Provides data within that range and of the financial year in which end date lies.
+            Only start date is defined:
+                Provides data ranging between start and current date and current financial year.
+            Only end date is defined:
+                Provides data ranging between start and current date and financial year in which end date lies.
+            No start or end date is defined:
+                Provides all the data till date and data of current financial year.
+        """
         start_date = request.GET.get('from_date')
         end_date = request.GET.get('to_date')
         
@@ -723,6 +828,9 @@ class DashboardView(APIView):
 
 class ClientRevenueView(APIView):
     def get(self, request, id, format=None):
+        """
+        Draws insights from the data and calculates revenue information of a particular client.
+        """
         print(id)
         client = Client.objects.get(email=id)
         projects = Project.objects.filter(clientprojectassociation__client=client)
@@ -788,6 +896,9 @@ class ClientRevenueView(APIView):
 
 class EmployeeRevenueView(APIView):
     def get(self, request, id, format=None):
+        """
+        Draws insights from the data and calculates revenue information related to a particular employee.
+        """
         print(id)
         employee = User.objects.get(email=id)
         if hasattr(employee, 'manager'):
@@ -856,6 +967,10 @@ class EmployeeRevenueView(APIView):
 
 class RuleView(APIView):
     def post(self, request, id, format=None):
+        """
+        Sets cashback rules for a particular client.
+        Amount is cutoff amount, i.e., if revenue goes above this amount, related discount will be given. 
+        """
         if request.user.is_superuser:
             data = request.data
             print(data)
@@ -876,6 +991,9 @@ class RuleView(APIView):
     
 class ValidateCoupon(APIView):
     def post(self, request, format=None):
+        """
+        Validates coupon code.
+        """
         coupon = request.data['coupon']
         client = Client.objects.get(email=request.user)
         result = validateCouponCode(client, coupon)
